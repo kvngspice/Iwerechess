@@ -1,0 +1,766 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Olu of Warri Chess Set</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Rubik:wght@300;400;500&display=swap">
+<style>
+  /* Layout: full-bleed WebGL stage, quiet museum-label UI floating in the corners */
+  :root {
+    color-scheme: dark;
+    --stage: #0E0B09;
+    --label: rgba(22, 18, 14, 0.82);
+    --pill: rgba(28, 22, 17, 0.38);
+    --pill-edge: rgba(232, 200, 150, 0.22);
+    --pill-glass: blur(14px) saturate(140%);
+    --ivory: #F2EADB;
+    --soft: #CDBFA8;
+    --muted: #94856F;
+    --bronze: #C9974F;
+    --line: rgba(201, 151, 79, 0.28);
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --text: 'Rubik', Arial, sans-serif;
+  }
+  html, body { height: 100%; }
+  body { background: var(--stage); color: var(--soft); font-family: var(--text); font-weight: 300; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+
+  .ui { position: fixed; inset: 0; pointer-events: none;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
+  .ui > * { pointer-events: auto; }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; pointer-events: none; }
+  .top > * { pointer-events: auto; }
+  .brand { display: flex; flex-direction: column; gap: 4px; max-width: 420px; }
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bronze); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: clamp(26px, 3.2vw, 40px); line-height: 1.05; color: var(--ivory); text-wrap: balance; }
+  .hint { font-size: 13px; color: var(--muted); }
+
+  .views { display: flex; gap: 6px; flex-wrap: wrap; background: var(--pill); border: 1px solid var(--pill-edge); border-radius: 999px; padding: 4px; backdrop-filter: var(--pill-glass); -webkit-backdrop-filter: var(--pill-glass); box-shadow: inset 0 1px 0 rgba(255, 240, 215, 0.08); }
+  .views button { font: 500 12px/1 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); background: transparent; border: 0; border-radius: 999px; padding: 10px 14px; cursor: pointer; }
+  .views button:hover { color: var(--ivory); }
+  .views button[aria-pressed="true"] { background: rgba(201, 151, 79, 0.82); color: #1A140E; }
+  button:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+  .bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; pointer-events: none; }
+  .bottom > * { pointer-events: auto; }
+
+  .card { width: min(400px, 100%); background: var(--label); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 8px; }
+  .card h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 30px; color: var(--ivory); line-height: 1.05; }
+  .card .src { font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bronze); }
+  .card p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--soft); }
+  .card .note { font-size: 12.5px; color: var(--muted); font-style: italic; }
+
+  .pieces { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 520px; }
+  .pieces button { font: 400 13px/1 var(--text); color: var(--soft); background: var(--pill); border: 1px solid var(--pill-edge); border-radius: 999px; padding: 9px 14px; cursor: pointer; backdrop-filter: var(--pill-glass); -webkit-backdrop-filter: var(--pill-glass); box-shadow: inset 0 1px 0 rgba(255, 240, 215, 0.08); }
+  .pieces button:hover { color: var(--ivory); border-color: var(--bronze); }
+  .pieces button[aria-pressed="true"] { color: #1A140E; background: rgba(201, 151, 79, 0.82); border-color: rgba(217, 176, 119, 0.9); }
+
+  #loader { position: fixed; inset: 0; display: grid; place-items: center; background: var(--stage); z-index: 5; transition: opacity 600ms ease; }
+  #loader.done { opacity: 0; pointer-events: none; }
+  .load-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-inline: 24px; text-align: center; }
+  .load-inner .t { font-family: var(--display); font-size: 28px; color: var(--ivory); }
+  .bar { width: 220px; max-width: 70vw; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--bronze); transition: width 200ms ease; }
+  #loadmsg { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .modes { display: flex; gap: 4px; background: var(--pill); border: 1px solid var(--pill-edge); border-radius: 999px; padding: 4px; backdrop-filter: var(--pill-glass); -webkit-backdrop-filter: var(--pill-glass); box-shadow: inset 0 1px 0 rgba(255, 240, 215, 0.08); }
+  .modes button { font: 500 12px/1 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); background: transparent; border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+  .modes button[aria-pressed="true"] { background: rgba(242, 234, 219, 0.85); color: #1A140E; }
+  .controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .actions button { font: 500 12px/1 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ivory); background: transparent; border: 1px solid var(--bronze); border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+  .actions button:hover { background: var(--bronze); color: #1A140E; }
+  .actions button:disabled { opacity: 0.4; cursor: default; background: transparent; color: var(--ivory); }
+  .moves { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.5; max-height: 3.2em; overflow: hidden; }
+  .turn-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; border: 1px solid var(--bronze); }
+  .turn-dot.w { background: #C9974F; } .turn-dot.b { background: #3A2C22; }
+  @media (max-width: 640px) {
+    .controls { align-items: flex-start; }
+    .hint { display: none; }
+    .views { flex-wrap: nowrap; gap: 2px; }
+    .views button { padding: 9px 9px; font-size: 10.5px; letter-spacing: 0.04em; white-space: nowrap; }
+    .modes button { padding: 9px 14px; font-size: 11px; }
+    .card { max-height: 30vh; overflow-y: auto; padding: 16px 18px; }
+    .pieces { gap: 5px; }
+    .pieces button { padding: 8px 11px; font-size: 12px; }
+    .card { padding: 16px 18px; }
+    .card h2 { font-size: 24px; }
+    .card p { font-size: 13.5px; }
+    .pieces { justify-content: flex-start; }
+  }
+  /* liquid glass: clear body, heavy refraction-like blur, a specular rim that is bright on top and fades below, soft inner light */
+  .modes, .views, .pieces button {
+    position: relative; isolation: isolate;
+    background: linear-gradient(180deg, rgba(255, 246, 230, 0.10) 0%, rgba(255, 246, 230, 0.03) 45%, rgba(20, 15, 11, 0.10) 100%);
+    border: 0;
+    backdrop-filter: blur(18px) saturate(185%) brightness(1.12) contrast(1.05);
+    -webkit-backdrop-filter: blur(18px) saturate(185%) brightness(1.12) contrast(1.05);
+    box-shadow:
+      inset 0 1px 0.5px rgba(255, 250, 240, 0.45),
+      inset 0 -1px 1px rgba(255, 235, 200, 0.10),
+      inset 0 0 18px rgba(255, 240, 215, 0.06),
+      0 10px 30px -12px rgba(0, 0, 0, 0.65),
+      0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .modes::before, .views::before, .pieces button::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
+    background: linear-gradient(160deg, rgba(255, 248, 235, 0.65), rgba(255, 230, 190, 0.12) 35%, rgba(255, 230, 190, 0.04) 60%, rgba(232, 190, 130, 0.35));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .modes::after, .views::after, .pieces button::after {
+    content: ""; position: absolute; left: 8%; right: 8%; top: 1px; height: 45%; border-radius: 999px 999px 40% 40%; pointer-events: none; z-index: -1;
+    background: linear-gradient(180deg, rgba(255, 252, 245, 0.16), rgba(255, 252, 245, 0));
+  }
+  .modes button, .views button { position: relative; transition: background 260ms ease, color 200ms ease, transform 160ms ease, box-shadow 260ms ease; }
+  .modes button:hover, .views button:hover { background: rgba(255, 246, 230, 0.07); }
+  .modes button:active, .views button:active, .pieces button:active { transform: scale(0.96); }
+  .pieces button { transition: transform 160ms ease, color 200ms ease, background 260ms ease; }
+  .pieces button:hover { transform: translateY(-1px); color: var(--ivory); }
+  /* the selected pill is a drop of tinted glass, not a flat fill */
+  .views button[aria-pressed="true"], .pieces button[aria-pressed="true"] {
+    color: #1A140E;
+    background: linear-gradient(180deg, rgba(240, 200, 140, 0.92), rgba(201, 151, 79, 0.78) 55%, rgba(170, 120, 60, 0.82));
+    box-shadow: inset 0 1px 0.5px rgba(255, 245, 225, 0.85), inset 0 -2px 4px rgba(110, 70, 25, 0.35), 0 4px 14px -4px rgba(201, 151, 79, 0.55);
+  }
+  .modes button[aria-pressed="true"] {
+    color: #1A140E;
+    background: linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(236, 226, 208, 0.78));
+    box-shadow: inset 0 1px 0.5px #fff, inset 0 -2px 4px rgba(120, 100, 70, 0.25), 0 4px 14px -4px rgba(242, 234, 219, 0.35);
+  }
+  @media (prefers-reduced-motion: reduce) { #loader { transition: none; } .modes button, .views button, .pieces button { transition: none; } .pieces button:hover, .modes button:active, .views button:active, .pieces button:active { transform: none; } }
+</style>
+
+<canvas id="stage" aria-label="Interactive 3D view of the Olu of Warri bronze chess set on its resin river-map board"></canvas>
+
+<div id="loader" role="status" aria-live="polite">
+  <div class="load-inner">
+    <div class="eyebrow"></div>
+    <div class="t">Casting the set</div>
+    <div class="bar"><i id="loadbar"></i></div>
+    <div id="loadmsg">Loading models</div>
+  </div>
+</div>
+
+<div class="ui">
+  <div class="top">
+    <div class="brand">
+      <h1>The Olu of Warri Chess Set</h1>
+      <span class="hint">Drag to turn, scroll or pinch to zoom, tap a piece to read about it.</span>
+    </div>
+    <div class="controls">
+    <div class="modes" role="group" aria-label="Mode">
+      <button type="button" id="m-explore" aria-pressed="true">Explore</button>
+      <button type="button" id="m-play" aria-pressed="false">Play</button>
+    </div>
+    <div class="views" role="group" aria-label="Camera view">
+      <button type="button" id="v-set" data-view="set" aria-pressed="true">Full set</button>
+      <button type="button" id="v-low" data-view="low">Eye level</button>
+      <button type="button" id="v-top" data-view="top">Board map</button>
+      <button type="button" id="v-spin" aria-pressed="false">Turntable</button>
+    </div>
+    </div>
+  </div>
+  <div class="bottom">
+    <section class="card" id="info" aria-live="polite">
+      <span class="src" id="i-src">The set</span>
+      <h2 id="i-name">A kingdom you can play</h2>
+      <p id="i-text">Each piece takes its form from something the Itsekiri people already honour: the Olu’s crown, the chiefs’ regalia, the Red Boat and the masquerade. The board is the water of Àlè Ìwẹ̀rẹ̀, with the rivers of the kingdom etched faintly beneath the squares.</p>
+      <p class="note" id="i-note" hidden></p>
+      <div class="moves" id="i-moves" hidden></div>
+      <div class="actions" id="i-actions" hidden>
+        <button type="button" id="g-undo">Undo move</button>
+        <button type="button" id="g-new">New game</button>
+      </div>
+    </section>
+    <div class="pieces" role="group" aria-label="Pieces">
+      <button type="button" data-piece="king" aria-pressed="false">King</button>
+      <button type="button" data-piece="queen" aria-pressed="false">Queen</button>
+      <button type="button" data-piece="bishop" aria-pressed="false">Bishop</button>
+      <button type="button" data-piece="knight" aria-pressed="false">Knight</button>
+      <button type="button" data-piece="rook" aria-pressed="false">Rook</button>
+      <button type="button" data-piece="pawn" aria-pressed="false">Pawn</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const INFO = {
+  set: { src: 'The set', name: 'A kingdom you can play', text: document.getElementById('i-text').textContent },
+  king: { src: 'King · The Olu’s crown', name: 'Presence without portraiture',
+    text: 'We studied the crown and the bearing of His Majesty when he wears it, and distilled them into form rather than likeness. The crown carries his authority, the calm column carries his composure and the layered coral carries his rank.' },
+  queen: { src: 'Queen · The coronet', name: 'Grace beside the throne',
+    text: 'Drawn from the king’s crown, the queen shares its lattice, studs and arches, but opens outward into a lighter coronet crowned with coral instead of a cross. A slimmer body and a single strand of coral give her poise and rank, while the king remains the centre of the set.' },
+  bishop: { src: 'Bishop · The chief', name: 'Counsel to the throne',
+    text: 'The chiefs stand closest to the king, as the bishops do. In his white gown, red sash and stacked coral collar, he holds the uda upright, the sign of the authority he carries for the throne.' },
+  knight: { src: 'Knight · The procession', name: 'The royal procession',
+    text: 'The royal procession horse, with its lifted head, arched neck and measured, ceremonial step, stylised into one still moment of motion. The brocade caparison gives it dignity and the coral breastplate marks it as part of the royal household.' },
+  rook: { src: 'Rook · The Red Boat', name: 'A fortress on the water',
+    text: 'The Red Boat is the official royal vessel and sacred aquatic symbol of the Olu of Warri. In a riverine kingdom the fortress is the vessel, so the rook becomes the boat: its hull forms the tower, its fringed canopy the battlements and its flag the royal standard.',
+    note: 'Shown as a simplified stand-in until the rook model is added.' },
+  pawn: { src: 'Pawn · The masquerade', name: 'The spirit of the people',
+    text: 'The pawns are the many, so they carry the spirit of the community. Drawn from the Itsekiri masquerade, each is wrapped in fabric and palm fronds and stands on a drum of ankle rattles.' },
+};
+
+// ---------- renderer and scene ----------
+const canvas = document.getElementById('stage');
+const isSmall = Math.min(window.innerWidth, window.innerHeight) < 700;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmall ? 1.5 : 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0E0B09);
+scene.fog = new THREE.Fog(0x0E0B09, 9, 22);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 1.2;
+controls.maxDistance = 12;
+controls.maxPolarAngle = Math.PI * 0.47;
+controls.target.set(0, 0.2, 0);
+
+// lights
+scene.add(new THREE.HemisphereLight(0xFFE9C9, 0x1A120C, 0.35));
+const key = new THREE.DirectionalLight(0xFFD9A8, 2.6);
+key.position.set(-4, 7, 4);
+key.castShadow = true;
+key.shadow.mapSize.set(isSmall ? 1024 : 2048, isSmall ? 1024 : 2048);
+const sc = key.shadow.camera; sc.left = -3.2; sc.right = 3.2; sc.top = 3.2; sc.bottom = -3.2; sc.near = 1; sc.far = 18;
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x9EC4D0, 0.9);
+rim.position.set(4, 3, -5);
+scene.add(rim);
+const glow = new THREE.PointLight(0x3FA6B0, 0.6, 5, 2);
+glow.position.set(0, -0.2, 0);
+scene.add(glow);
+
+// floor
+const floor = new THREE.Mesh(new THREE.CircleGeometry(14, 64),
+  new THREE.MeshStandardMaterial({ color: 0x0C0907, roughness: 0.7, metalness: 0.0 }));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.62;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ---------- board ----------
+const S = 0.5;               // square size
+const HALF = S * 4;
+const bronze = new THREE.MeshStandardMaterial({ color: 0x9A6B3A, metalness: 1, roughness: 0.38 });
+const bronzeDark = new THREE.MeshStandardMaterial({ color: 0x5A3E22, metalness: 1, roughness: 0.55 });
+
+const board = new THREE.Group();
+scene.add(board);
+// plinth and frame
+const plinth = new THREE.Mesh(new THREE.BoxGeometry(HALF * 2 + 0.7, 0.5, HALF * 2 + 0.7), bronzeDark);
+plinth.position.y = -0.36; plinth.receiveShadow = true; plinth.castShadow = true;
+board.add(plinth);
+const frameShape = new THREE.Shape();
+const o = HALF + 0.3, i = HALF + 0.02;
+frameShape.moveTo(-o, -o); frameShape.lineTo(o, -o); frameShape.lineTo(o, o); frameShape.lineTo(-o, o); frameShape.lineTo(-o, -o);
+const hole = new THREE.Path(); hole.moveTo(-i, -i); hole.lineTo(-i, i); hole.lineTo(i, i); hole.lineTo(i, -i); hole.lineTo(-i, -i);
+frameShape.holes.push(hole);
+const frame = new THREE.Mesh(new THREE.ExtrudeGeometry(frameShape, { depth: 0.14, bevelEnabled: true, bevelSize: 0.025, bevelThickness: 0.025, bevelSegments: 3 }), bronze);
+frame.rotation.x = -Math.PI / 2; frame.position.y = -0.14; frame.castShadow = true; frame.receiveShadow = true;
+board.add(frame);
+
+// surface texture: squares, bronze grid, faint river map
+function squaresCanvas(mapImg) {
+  const N = 2048, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'), q = N / 8;
+  for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++) {
+    const light = (r + f) % 2 === 0;
+    const grd = g.createLinearGradient(f * q, r * q, (f + 1) * q, (r + 1) * q);
+    if (light) { grd.addColorStop(0, '#2C6C72'); grd.addColorStop(1, '#245E66'); }
+    else { grd.addColorStop(0, '#0B2A35'); grd.addColorStop(1, '#08222C'); }
+    g.fillStyle = grd; g.fillRect(f * q, r * q, q, q);
+  }
+  if (mapImg) {
+    g.save(); g.globalAlpha = 0.3; g.globalCompositeOperation = 'screen';
+    g.drawImage(mapImg, 0, 0, N, N); g.restore();
+  }
+  g.strokeStyle = '#C9974F'; g.lineWidth = 6;
+  for (let k = 0; k <= 8; k++) {
+    g.beginPath(); g.moveTo(k * q, 0); g.lineTo(k * q, N); g.stroke();
+    g.beginPath(); g.moveTo(0, k * q); g.lineTo(N, k * q); g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+function rippleNormal() {
+  const N = 512, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'), img = g.createImageData(N, N);
+  const h = (x, y) => Math.sin(x * 0.07 + Math.sin(y * 0.031) * 2.2) * 0.6 + Math.sin(y * 0.053 + x * 0.019) * 0.5 + Math.sin((x + y) * 0.11) * 0.18;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = h(x + 1, y) - h(x - 1, y), dy = h(x, y + 1) - h(x, y - 1);
+    const p = (y * N + x) * 4;
+    img.data[p] = 128 + dx * 60; img.data[p + 1] = 128 + dy * 60; img.data[p + 2] = 255; img.data[p + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2.2, 2.2);
+  return t;
+}
+const surfMat = new THREE.MeshPhysicalMaterial({
+  map: squaresCanvas(null), roughness: 0.22, metalness: 0.0,
+  clearcoat: 1, clearcoatRoughness: 0.04, normalMap: rippleNormal(), normalScale: new THREE.Vector2(0.48, 0.48),
+});
+const surface = new THREE.Mesh(new THREE.PlaneGeometry(HALF * 2, HALF * 2), surfMat);
+surface.rotation.x = -Math.PI / 2; surface.position.y = 0.0; surface.receiveShadow = true;
+board.add(surface);
+const mapImg = new Image();
+mapImg.onload = () => { surfMat.map.dispose(); surfMat.map = squaresCanvas(mapImg); surfMat.needsUpdate = true; };
+mapImg.src = 'map.png';
+
+// seat of the kingdom: a small bronze crown set flush where the map marks it
+function crownTexture() {
+  // the Olu's crown as an inlaid bronze emblem: red base band, flared body, lattice, arched crest and cross
+  const N = 512, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ffffff';
+  g.beginPath();
+  g.moveTo(150, 420); g.lineTo(362, 420); g.lineTo(392, 190); g.lineTo(120, 190); g.closePath(); g.fill();
+  for (let k = 0; k < 5; k++) {
+    const x0 = 120 + k * 54.4, x1 = x0 + 54.4, xm = (x0 + x1) / 2;
+    g.beginPath(); g.moveTo(x0, 192); g.quadraticCurveTo(x0 + 4, 130, xm, 108); g.quadraticCurveTo(x1 - 4, 130, x1, 192); g.fill();
+  }
+  g.fillRect(244, 40, 24, 80); g.fillRect(222, 62, 68, 22);
+  g.globalCompositeOperation = 'destination-out';
+  g.lineWidth = 7;
+  for (let k = -6; k < 10; k++) { g.beginPath(); g.moveTo(130 + k * 34, 330); g.lineTo(130 + k * 34 + 90, 230); g.stroke(); g.beginPath(); g.moveTo(130 + k * 34, 230); g.lineTo(130 + k * 34 + 90, 330); g.stroke(); }
+  g.fillRect(140, 340, 232, 8);
+  for (let k = 0; k < 5; k++) { const xm = 120 + k * 54.4 + 27.2; g.beginPath(); g.ellipse(xm, 160, 9, 22, 0, 0, Math.PI * 2); g.fill(); }
+  g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#ffffff'; for (let k = 0; k < 7; k++) { g.beginPath(); g.arc(165 + k * 30.5, 372, 7, 0, Math.PI * 2); g.fill(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const crownMap = crownTexture();
+const crownEmblem = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), new THREE.MeshStandardMaterial({
+  color: 0xD2A462, map: crownMap, alphaMap: crownMap, transparent: true, alphaTest: 0.4, metalness: 1, roughness: 0.28,
+  emissive: 0x3A2508, emissiveIntensity: 0.6, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2,
+}));
+crownEmblem.rotation.x = -Math.PI / 2;
+crownEmblem.position.set(-HALF + 0.594 * HALF * 2, 0.003, -HALF + 0.466 * HALF * 2);
+crownEmblem.renderOrder = 1;
+board.add(crownEmblem);
+const crownBand = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.022), new THREE.MeshStandardMaterial({ color: 0x9E3A26, roughness: 0.45, metalness: 0.2, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }));
+crownBand.rotation.x = -Math.PI / 2;
+crownBand.position.set(crownEmblem.position.x, 0.0035, crownEmblem.position.z + 0.34 * (1 - 405 / 512) - 0.17 + 0.17 * 0 );
+crownBand.position.z = crownEmblem.position.z - 0.17 + 0.34 * (405 / 512);
+crownBand.renderOrder = 2;
+board.add(crownBand);
+
+// ---------- pieces ----------
+const HEIGHT = { king: 0.95, queen: 0.86, bishop: 0.78, knight: 0.72, rook: 0.66, pawn: 0.56 };
+const BACK = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+const files = ['king', 'queen', 'bishop', 'knight', 'pawn'];
+const sq = (f, r) => new THREE.Vector3(-HALF + S * (f + 0.5), 0, HALF - S * (r + 0.5));
+
+const loadbar = document.getElementById('loadbar');
+const loadmsg = document.getElementById('loadmsg');
+const progress = {};
+function updateProgress() {
+  const vals = Object.values(progress); const p = vals.reduce((a, b) => a + b, 0) / files.length;
+  loadbar.style.width = Math.round(p * 100) + '%';
+  loadmsg.textContent = `Loading models ${Math.round(p * 100)}%`;
+}
+
+const loader = new GLTFLoader();
+async function fetchModel(name) {
+  // models ship as base64 text so the artifact host can serve them; decoded back to GLB bytes here
+  const res = await fetch(name + '.txt');
+  if (!res.ok) throw new Error('Missing model ' + name);
+  const total = Number(res.headers.get('content-length')) || 0;
+  let text = '';
+  if (res.body && total) {
+    const reader = res.body.getReader(), dec = new TextDecoder(); let got = 0;
+    for (;;) { const { done, value } = await reader.read(); if (done) break; got += value.length; text += dec.decode(value, { stream: true }); progress[name] = Math.min(0.95, got / total * 0.95); updateProgress(); }
+    text += dec.decode();
+  } else { text = await res.text(); }
+  const bin = atob(text.trim()); const bytes = new Uint8Array(bin.length);
+  for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+  return bytes.buffer;
+}
+function loadPiece(name) {
+  return fetchModel(name).then((buf) => new Promise((resolve, reject) => {
+    loader.parse(buf, '', (gltf) => {
+      progress[name] = 1; updateProgress();
+      const root = gltf.scene;
+      const box = new THREE.Box3().setFromObject(root);
+      const size = box.getSize(new THREE.Vector3());
+      const s = HEIGHT[name] / size.y;
+      root.scale.setScalar(s);
+      root.position.y = -box.min.y * s;
+      root.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+      resolve(root);
+    }, reject);
+  }));
+}
+
+function makeRook() {
+  // simplified Red Boat tower: hull, fringed canopy and a single standard
+  const g = new THREE.Group();
+  const prof = [[0, 0], [0.2, 0], [0.205, 0.035], [0.17, 0.06], [0.15, 0.1], [0.165, 0.2], [0.13, 0.28], [0.12, 0.42], [0.15, 0.44], [0.15, 0.47], [0, 0.47]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  const body = new THREE.Mesh(new THREE.LatheGeometry(prof, 48), bronze.clone());
+  g.add(body);
+  const canopy = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.12, 12, 1, true), bronze.clone());
+  canopy.position.y = 0.53; g.add(canopy);
+  const fringe = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.035, 12, 1, true), bronze.clone());
+  fringe.position.y = 0.455; g.add(fringe);
+  for (let k = 0; k < 12; k++) {
+    const t = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.04, 4), bronze.clone());
+    const a = (k / 12) * Math.PI * 2; t.position.set(Math.cos(a) * 0.2, 0.42, Math.sin(a) * 0.2); t.rotation.x = Math.PI; g.add(t);
+  }
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.2, 8), bronze.clone());
+  pole.position.y = 0.68; g.add(pole);
+  const flag = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.008), bronze.clone());
+  flag.position.set(0.055, 0.75, 0); g.add(flag);
+  const coral = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.012, 8, 40), new THREE.MeshStandardMaterial({ color: 0x8A3A26, roughness: 0.5, metalness: 0.3 }));
+  coral.rotation.x = Math.PI / 2; coral.position.y = 0.4; g.add(coral);
+  g.traverse((m) => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  const s = HEIGHT.rook / 0.79; g.scale.setScalar(s);
+  return g;
+}
+
+function darken(obj) {
+  obj.traverse((m) => {
+    if (!m.isMesh) return;
+    const mats = Array.isArray(m.material) ? m.material : [m.material];
+    const out = mats.map((mt) => { const c = mt.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiply(new THREE.Color(0x3C3029)); if ('roughness' in c) c.roughness = Math.min(1, (c.roughness ?? 0.5) + 0.12); return c; });
+    m.material = Array.isArray(m.material) ? out : out[0];
+  });
+}
+
+let allPieces = [];
+let byType = {};
+let proto = null;
+const TYPE = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+const game = new window.Chess();
+let squareMap = {};      // 'e4' -> piece object
+const sqName = (f, r) => 'abcdefgh'[f] + (r + 1);
+const sqCoords = (n) => [n.charCodeAt(0) - 97, Number(n[1]) - 1];
+
+function make(type, dark) {
+  const p = proto[type].clone(true);
+  if (dark) darken(p); else p.rotation.y = Math.PI; // each army faces its opponent
+  p.userData.type = type; p.userData.dark = dark;
+  p.traverse((m) => { if (m.isMesh) m.userData.piece = p; });
+  return p;
+}
+function graveSlot(dark, k) {
+  // captured pieces stand in rows beside the board, bronze on one side and dark on the other
+  const x = (dark ? 1 : -1) * (HALF + 0.65 + Math.floor(k / 8) * 0.38);
+  const z = (dark ? -1 : 1) * (HALF - 0.25 - (k % 8) * 0.5);
+  return new THREE.Vector3(x, -0.62, z);
+}
+function capturedLists() {
+  // in capture order, so pieces keep their places beside the board
+  const out = { w: [], b: [] };
+  game.history({ verbose: true }).forEach((m) => { if (m.captured) out[m.color === 'w' ? 'b' : 'w'].push(m.captured); });
+  return out;
+}
+function rebuild() {
+  allPieces.forEach((p) => scene.remove(p));
+  allPieces = []; byType = {}; squareMap = {};
+  game.board().forEach((row, i) => row.forEach((c, f) => {
+    if (!c) return;
+    const r = 7 - i, type = TYPE[c.type];
+    const p = make(type, c.color === 'b');
+    const v = sq(f, r); p.position.set(v.x, 0, v.z);
+    scene.add(p); allPieces.push(p); (byType[type] ||= []).push(p); squareMap[sqName(f, r)] = p;
+  }));
+  const cap = capturedLists();
+  for (const col of ['w', 'b']) cap[col].forEach((t, k) => {
+    const p = make(TYPE[t], col === 'b'); p.position.copy(graveSlot(col === 'b', k)); p.scale.multiplyScalar(0.8);
+    p.userData.captured = true; scene.add(p); allPieces.push(p);
+  });
+  uniqueMaterials();
+}
+
+Promise.all(files.map(loadPiece)).then((models) => {
+  proto = {}; files.forEach((n, k) => proto[n] = models[k]);
+  proto.rook = makeRook();
+  rebuild();
+  document.getElementById('loader').classList.add('done');
+}).catch((err) => {
+  loadmsg.textContent = 'The models could not load. Refresh the page to try again.';
+  console.error(err);
+});
+
+// ---------- views ----------
+const VIEWS = { // default view looks across the board so both armies show their faces
+  set: { pos: new THREE.Vector3(6.2, 4.6, 3.4), target: new THREE.Vector3(0, 0.05, 0) },
+  low: { pos: new THREE.Vector3(4.3, 0.85, 1.1), target: new THREE.Vector3(0, 0.32, 0.3) },
+  top: { pos: new THREE.Vector3(0.001, 7.4, 0.25), target: new THREE.Vector3(0, 0, 0) },
+};
+let tween = null;
+function flyTo(pos, target, ms = 1100) {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { camera.position.copy(pos); controls.target.copy(target); return; }
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos.clone(), t1: target.clone(), start: performance.now(), ms };
+}
+function fitFor(view) {
+  // pull back on narrow screens so the whole board stays in frame
+  const a = camera.aspect, k = a < 0.8 ? 1.55 : a < 1 ? 1.3 : 1;
+  const v = VIEWS[view];
+  const dir = v.pos.clone().sub(v.target);
+  return { pos: v.target.clone().add(dir.multiplyScalar(k)), target: v.target.clone() };
+}
+const viewBtns = [...document.querySelectorAll('.views [data-view]')];
+viewBtns.forEach((b) => b.addEventListener('click', () => {
+  viewBtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  const v = fitFor(b.dataset.view); flyTo(v.pos, v.target); if (mode === 'explore') select(null, false);
+}));
+const spinBtn = document.getElementById('v-spin');
+spinBtn.addEventListener('click', () => {
+  const on = spinBtn.getAttribute('aria-pressed') !== 'true';
+  spinBtn.setAttribute('aria-pressed', String(on)); controls.autoRotate = on; controls.autoRotateSpeed = 0.6;
+});
+
+// ---------- selection ----------
+const iSrc = document.getElementById('i-src'), iName = document.getElementById('i-name'), iText = document.getElementById('i-text'), iNote = document.getElementById('i-note');
+const pieceBtns = [...document.querySelectorAll('.pieces button')];
+let selected = null;
+function setGlow(type, on) {
+  (byType[type] || []).forEach((p) => p.traverse((m) => {
+    if (!m.isMesh) return;
+    const mats = Array.isArray(m.material) ? m.material : [m.material];
+    mats.forEach((mt) => { if (mt.emissive) { mt.emissive.set(on ? 0x5A3A12 : 0x000000); mt.emissiveIntensity = on ? 0.35 : 0; } });
+  }));
+}
+function select(type, fly = true, focusPiece = null) {
+  if (selected) setGlow(selected, false);
+  selected = type;
+  const d = INFO[type || 'set'];
+  iSrc.textContent = d.src; iName.textContent = d.name; iText.textContent = d.text;
+  iNote.hidden = !d.note; iNote.textContent = d.note || '';
+  pieceBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.piece === type)));
+  if (!type) return;
+  // unique materials per piece make the glow safe to apply
+  setGlow(type, true);
+  if (fly) {
+    const list = byType[type] || [];
+    const p = focusPiece || list.find((x) => !x.userData.dark) || list[0];
+    if (!p) return;
+    const h = HEIGHT[type];
+    const target = new THREE.Vector3(p.position.x, h * 0.5, p.position.z);
+    const side = p.position.z > 0 ? -1 : 1;
+    const dist = 1.15 + h * 0.9;
+    const pos = target.clone().add(new THREE.Vector3(dist * 0.45, h * 0.35 + 0.25, dist * 0.9 * side));
+    flyTo(pos, target);
+    viewBtns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  }
+}
+pieceBtns.forEach((b) => b.addEventListener('click', () => select(b.dataset.piece)));
+
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null;
+canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+  const r = canvas.getBoundingClientRect();
+  ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  if (mode === 'play') { playClick(); return; }
+  const hit = ray.intersectObjects(allPieces, true)[0];
+  if (hit && hit.object.userData.piece) { const p = hit.object.userData.piece; select(p.userData.type, true, p); }
+});
+
+// give every placed piece its own materials so selection glow and the dark patina stay independent
+function uniqueMaterials() {
+  allPieces.forEach((p) => p.traverse((m) => {
+    if (!m.isMesh || m.userData.ownMat) return;
+    m.material = Array.isArray(m.material) ? m.material.map((x) => x.clone()) : m.material.clone();
+    m.userData.ownMat = true;
+  }));
+}
+
+// ---------- play ----------
+let mode = 'explore';
+let picked = null;           // square name of the lifted piece
+let busy = false;
+const anims = [];
+const markers = new THREE.Group(); scene.add(markers);
+const markMat = new THREE.MeshBasicMaterial({ color: 0xF0CF8A, transparent: true, opacity: 0.9, depthWrite: false });
+const lastMat = new THREE.MeshBasicMaterial({ color: 0xF0CF8A, transparent: true, opacity: 0.16, depthWrite: false });
+const checkMat = new THREE.MeshBasicMaterial({ color: 0xE0603F, transparent: true, opacity: 0.85, depthWrite: false });
+const dotGeo = new THREE.CircleGeometry(0.065, 32), ringGeo = new THREE.RingGeometry(0.19, 0.225, 48), tileGeo = new THREE.PlaneGeometry(S * 0.98, S * 0.98);
+function flat(geo, mat, name, y = 0.004) {
+  const [f, r] = sqCoords(name); const v = sq(f, r);
+  const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(v.x, y, v.z); m.renderOrder = 2; markers.add(m); return m;
+}
+let lastMove = null;
+function drawMarkers() {
+  markers.clear();
+  if (mode !== 'play') return;
+  if (lastMove) { flat(tileGeo, lastMat, lastMove.from, 0.002); flat(tileGeo, lastMat, lastMove.to, 0.002); }
+  if (game.in_check()) {
+    game.board().forEach((row, i) => row.forEach((c, f) => { if (c && c.type === 'k' && c.color === game.turn()) flat(ringGeo, checkMat, sqName(f, 7 - i)); }));
+  }
+  if (picked) game.moves({ square: picked, verbose: true }).forEach((mv) => flat(mv.captured ? ringGeo : dotGeo, markMat, mv.to));
+}
+const SIDE = { w: 'Bronze', b: 'Dark' };
+function status() {
+  const t = game.turn(), who = SIDE[t];
+  let head = `${who} to move`, text = `Tap a ${who.toLowerCase()} piece, then one of the highlighted squares.`;
+  if (game.in_checkmate()) { head = `Checkmate. ${SIDE[t === 'w' ? 'b' : 'w']} wins`; text = 'Start a new game or undo the last move.'; }
+  else if (game.in_stalemate()) { head = 'Stalemate'; text = 'The game is drawn. Start a new game or undo the last move.'; }
+  else if (game.in_draw()) { head = 'Draw'; text = 'The game is drawn. Start a new game or undo the last move.'; }
+  else if (game.in_check()) { head = `${who} is in check`; text = 'Move the king to safety, block the attack or capture the attacker.'; }
+  iSrc.innerHTML = `<span class="turn-dot ${t}"></span>Play · Two players`;
+  iName.textContent = head; iText.textContent = text; iNote.hidden = true;
+  const h = game.history();
+  const pairs = []; for (let k = 0; k < h.length; k += 2) pairs.push(`${k / 2 + 1}. ${h[k]}${h[k + 1] ? ' ' + h[k + 1] : ''}`);
+  iMoves.textContent = pairs.length ? pairs.slice(-4).join('   ') : 'No moves yet.';
+  gUndo.disabled = h.length === 0;
+}
+const iMoves = document.getElementById('i-moves'), iActions = document.getElementById('i-actions');
+const gUndo = document.getElementById('g-undo'), gNew = document.getElementById('g-new');
+
+function lift(name, on) {
+  const p = squareMap[name]; if (!p) return;
+  p.position.y = on ? 0.08 : 0;
+  p.traverse((m) => { if (!m.isMesh) return; (Array.isArray(m.material) ? m.material : [m.material]).forEach((mt) => { if (mt.emissive) { mt.emissive.set(on ? 0x5A3A12 : 0); mt.emissiveIntensity = on ? 0.45 : 0; } }); });
+}
+function animate(obj, to, ms, arc, scaleTo) {
+  return new Promise((res) => anims.push({ obj, from: obj.position.clone(), to, ms, arc, s0: obj.scale.x, s1: scaleTo ?? obj.scale.x, start: performance.now(), res }));
+}
+function stepAnims(now) {
+  for (let k = anims.length - 1; k >= 0; k--) {
+    const a = anims[k], t = Math.min(1, (now - a.start) / a.ms), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    a.obj.position.lerpVectors(a.from, a.to, e); a.obj.position.y += Math.sin(Math.PI * e) * a.arc;
+    a.obj.scale.setScalar(a.s0 + (a.s1 - a.s0) * e);
+    if (t >= 1) { anims.splice(k, 1); a.res(); }
+  }
+}
+function squareFromHit() {
+  const hit = ray.intersectObjects([...allPieces.filter((p) => !p.userData.captured), surface], true)[0];
+  if (!hit) return null;
+  const pc = hit.object.userData.piece;
+  if (pc) { for (const [n, p] of Object.entries(squareMap)) if (p === pc) return n; return null; }
+  const f = Math.floor((hit.point.x + HALF) / S), r = Math.floor((HALF - hit.point.z) / S);
+  return f >= 0 && f < 8 && r >= 0 && r < 8 ? sqName(f, r) : null;
+}
+async function playClick() {
+  if (busy || game.game_over()) return;
+  const name = squareFromHit(); if (!name) return;
+  const here = game.get(name);
+  if (picked) {
+    const mv = game.moves({ square: picked, verbose: true }).find((m) => m.to === name);
+    if (mv) { await doMove(mv); return; }
+    lift(picked, false); picked = null;
+  }
+  if (here && here.color === game.turn() && game.moves({ square: name }).length) { picked = name; lift(name, true); }
+  drawMarkers();
+}
+async function doMove(mv) {
+  busy = true;
+  const mover = squareMap[mv.from];
+  lift(mv.from, false);
+  const jobs = [];
+  if (mv.captured) {
+    const capSq = mv.flags.includes('e') ? mv.to[0] + mv.from[1] : mv.to;
+    const victim = squareMap[capSq];
+    const k = capturedLists()[game.turn() === 'w' ? 'b' : 'w'].length;
+    if (victim) jobs.push(animate(victim, graveSlot(game.turn() === 'w', k), 650, 0.5, victim.scale.x * 0.8));
+  }
+  const [tf, tr] = sqCoords(mv.to); const tv = sq(tf, tr);
+  jobs.push(animate(mover, new THREE.Vector3(tv.x, 0, tv.z), 520, mv.piece === 'n' ? 0.45 : 0.18));
+  if (mv.flags.includes('k') || mv.flags.includes('q')) {
+    const rank = mv.from[1], rf = mv.flags.includes('k') ? 'h' : 'a', rt = mv.flags.includes('k') ? 'f' : 'd';
+    const rook = squareMap[rf + rank]; const [ff, rr] = sqCoords(rt + rank); const rv = sq(ff, rr);
+    if (rook) jobs.push(animate(rook, new THREE.Vector3(rv.x, 0, rv.z), 520, 0.25));
+  }
+  game.move({ from: mv.from, to: mv.to, promotion: 'q' });
+  lastMove = { from: mv.from, to: mv.to };
+  picked = null; markers.clear();
+  await Promise.all(jobs);
+  rebuild();             // settles promotion and keeps the scene in step with the rules
+  busy = false; status(); drawMarkers();
+}
+gUndo.addEventListener('click', () => {
+  if (busy) return; game.undo(); picked = null;
+  const h = game.history({ verbose: true }); lastMove = h.length ? { from: h[h.length - 1].from, to: h[h.length - 1].to } : null;
+  rebuild(); status(); drawMarkers();
+});
+gNew.addEventListener('click', () => { if (busy) return; game.reset(); picked = null; lastMove = null; rebuild(); status(); drawMarkers(); });
+
+const mExplore = document.getElementById('m-explore'), mPlay = document.getElementById('m-play');
+const piecesBar = document.querySelector('.pieces');
+function setMode(m) {
+  mode = m;
+  mExplore.setAttribute('aria-pressed', String(m === 'explore')); mPlay.setAttribute('aria-pressed', String(m === 'play'));
+  if (picked) { lift(picked, false); picked = null; }
+  iMoves.hidden = iActions.hidden = m !== 'play';
+  piecesBar.hidden = m === 'play';
+  if (m === 'play') {
+    select(null, false); status();
+    controls.autoRotate = false; spinBtn.setAttribute('aria-pressed', 'false');
+    // look across from the side so both armies sit left and right; nudge the board clear of the game card
+    const narrow = camera.aspect < 1;
+    flyTo(new THREE.Vector3(narrow ? 7.6 : 5.6, narrow ? 9.2 : 6.0, narrow ? 0.01 : -0.7), new THREE.Vector3(narrow ? 0.6 : 0.5, 0, narrow ? 0 : -0.7));
+    viewBtns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  } else { select(null, false); }
+  drawMarkers();
+}
+mExplore.addEventListener('click', () => setMode('explore'));
+mPlay.addEventListener('click', () => setMode('play'));
+
+// ---------- loop ----------
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h;
+  // portrait phones: wider lens, more room to pull back, and the picture lifted clear of the card
+  const portrait = w / h < 0.8;
+  camera.fov = portrait ? 44 : 32;
+  controls.maxDistance = portrait ? 20 : 12;
+  scene.fog.far = portrait ? 32 : 22;
+  if (portrait) camera.setViewOffset(w, h, 0, Math.round(h * 0.07), w, h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+{ const v = fitFor('set'); camera.position.copy(v.pos); controls.target.copy(v.target); }
+controls.addEventListener('start', () => { tween = null; });
+
+renderer.setAnimationLoop((now) => {
+  stepAnims(now);
+  if (tween) {
+    const t = Math.min(1, (now - tween.start) / tween.ms), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e);
+    if (t >= 1) tween = null;
+  }
+  surfMat.normalMap.offset.set(now * 0.000011, now * 0.000007);
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+
+</body></html>
