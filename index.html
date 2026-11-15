@@ -78,6 +78,23 @@
   .moves { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.5; max-height: 3.2em; overflow: hidden; }
   .turn-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; border: 1px solid var(--bronze); }
   .turn-dot.w { background: #C9974F; } .turn-dot.b { background: #3A2C22; }
+  .fb { margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--soft); padding: 9px 12px; border-radius: 10px; background: rgba(255, 246, 230, 0.05); border: 1px solid var(--line); }
+  .fb.good { border-color: rgba(127, 224, 216, 0.45); color: #D4F3EF; }
+  .fb.bad { border-color: rgba(224, 96, 63, 0.55); color: #F4CDBF; }
+  .opts { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+  .optrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .optrow .lab { font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); min-width: 76px; }
+  .seg { display: inline-flex; gap: 3px; padding: 3px; border-radius: 999px; background: rgba(255, 246, 230, 0.05); border: 1px solid var(--line); max-width: 100%; }
+  .seg button { font: 500 11px/1 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); background: transparent; border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+  .seg button:hover { color: var(--ivory); }
+  .seg button[aria-pressed="true"] { background: rgba(201, 151, 79, 0.85); color: #1A140E; }
+  .path { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 600px; }
+  .path button { font: 400 13px/1 var(--text); color: var(--soft); border-radius: 16px; padding: 9px 14px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: stretch; min-width: 74px; }
+  .path button:disabled { opacity: 0.38; cursor: default; }
+  .path .m { display: block; height: 3px; border-radius: 2px; background: rgba(255, 246, 230, 0.14); overflow: hidden; margin-top: 7px; }
+  .path .m b { display: block; height: 100%; background: linear-gradient(90deg, #B4472C, #E3A562); }
+  .path button[aria-pressed="true"] .m { background: rgba(26, 20, 14, 0.25); }
+  .path button[aria-pressed="true"] .m b { background: #3A2410; }
   @media (max-width: 640px) {
     .controls { align-items: flex-start; }
     .hint { display: none; }
@@ -91,9 +108,12 @@
     .card h2 { font-size: 24px; }
     .card p { font-size: 13.5px; }
     .pieces { justify-content: flex-start; }
+    .path { justify-content: flex-start; gap: 5px; }
+    .path button { padding: 8px 10px 7px; font-size: 12px; min-width: 0; }
+    .card { max-height: 38vh; }
   }
   /* liquid glass: clear body, heavy refraction-like blur, a specular rim that is bright on top and fades below, soft inner light */
-  .modes, .views, .pieces button {
+  .modes, .views, .pieces button, .path button, .hud .turn, .dock button, .sheet {
     position: relative; isolation: isolate;
     background: linear-gradient(180deg, rgba(255, 246, 230, 0.10) 0%, rgba(255, 246, 230, 0.03) 45%, rgba(20, 15, 11, 0.10) 100%);
     border: 0;
@@ -106,13 +126,13 @@
       0 10px 30px -12px rgba(0, 0, 0, 0.65),
       0 1px 2px rgba(0, 0, 0, 0.25);
   }
-  .modes::before, .views::before, .pieces button::before {
+  .modes::before, .views::before, .pieces button::before, .path button::before, .hud .turn::before, .dock button::before, .sheet::before {
     content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
     background: linear-gradient(160deg, rgba(255, 248, 235, 0.65), rgba(255, 230, 190, 0.12) 35%, rgba(255, 230, 190, 0.04) 60%, rgba(232, 190, 130, 0.35));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
   }
-  .modes::after, .views::after, .pieces button::after {
+  .modes::after, .views::after, .pieces button::after, .path button::after, .hud .turn::after, .dock button::after, .sheet::after {
     content: ""; position: absolute; left: 8%; right: 8%; top: 1px; height: 45%; border-radius: 999px 999px 40% 40%; pointer-events: none; z-index: -1;
     background: linear-gradient(180deg, rgba(255, 252, 245, 0.16), rgba(255, 252, 245, 0));
   }
@@ -122,7 +142,7 @@
   .pieces button { transition: transform 160ms ease, color 200ms ease, background 260ms ease; }
   .pieces button:hover { transform: translateY(-1px); color: var(--ivory); }
   /* the selected pill is a drop of tinted glass, not a flat fill */
-  .views button[aria-pressed="true"], .pieces button[aria-pressed="true"] {
+  .views button[aria-pressed="true"], .pieces button[aria-pressed="true"], .path button[aria-pressed="true"] {
     color: #1A140E;
     background: linear-gradient(180deg, rgba(240, 200, 140, 0.92), rgba(201, 151, 79, 0.78) 55%, rgba(170, 120, 60, 0.82));
     box-shadow: inset 0 1px 0.5px rgba(255, 245, 225, 0.85), inset 0 -2px 4px rgba(110, 70, 25, 0.35), 0 4px 14px -4px rgba(201, 151, 79, 0.55);
@@ -132,6 +152,35 @@
     background: linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(236, 226, 208, 0.78));
     box-shadow: inset 0 1px 0.5px #fff, inset 0 -2px 4px rgba(120, 100, 70, 0.25), 0 4px 14px -4px rgba(242, 234, 219, 0.35);
   }
+  /* immersive play: no title, no card, just a quiet turn indicator, a dock and a menu sheet */
+  body.immersive .brand, body.immersive .views { display: none; }
+  body.immersive .top { justify-content: flex-end; }
+  .hud { position: fixed; z-index: 2; top: calc(20px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
+  .hud .turn { display: inline-flex; align-items: center; border-radius: 999px; padding: 11px 18px 11px 16px; font: 600 22px/1 var(--display); color: var(--ivory); }
+  .hud .turn .turn-dot { margin-right: 10px; vertical-align: 0; }
+  .hud .sub { font-size: 13px; color: var(--soft); padding-left: 18px; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
+  .hud.alert .turn { color: #F6D2C4; }
+  .hud.alert .turn .turn-dot { box-shadow: 0 0 0 3px rgba(224, 96, 63, 0.45); }
+  .dock { position: fixed; z-index: 2; left: 50%; transform: translateX(-50%); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 12px; }
+  .dock button { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; color: var(--ivory); cursor: pointer; transition: transform 160ms ease, color 200ms ease; }
+  .dock button svg { width: 21px; height: 21px; }
+  .dock button:hover { transform: translateY(-2px); }
+  .dock button:active { transform: scale(0.94); }
+  .dock button:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .dock button[aria-expanded="true"] { color: #1A140E; background: linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(236, 226, 208, 0.78)); }
+  .sheet { position: fixed; z-index: 3; left: 50%; transform: translateX(-50%); bottom: calc(90px + env(safe-area-inset-bottom, 0px)); width: min(360px, calc(100% - 32px)); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .sheet { background: linear-gradient(180deg, rgba(38, 30, 23, 0.74), rgba(16, 12, 9, 0.82)); }
+  .sheet .moves { max-height: 4.6em; overflow-y: auto; color: var(--soft); }
+  .sheet .optrow .lab { color: var(--soft); }
+  .sheet .primary { font: 500 12px/1 var(--text); letter-spacing: 0.1em; text-transform: uppercase; color: #1A140E; background: linear-gradient(180deg, rgba(240, 200, 140, 0.95), rgba(201, 151, 79, 0.85)); border: 0; border-radius: 999px; padding: 13px 18px; cursor: pointer; box-shadow: inset 0 1px 0.5px rgba(255, 245, 225, 0.85), 0 6px 18px -6px rgba(201, 151, 79, 0.6); }
+  .sheet .primary:hover { filter: brightness(1.06); }
+  .sheet .optrow .lab { min-width: 70px; }
+  @media (max-width: 640px) {
+    body.immersive .top { justify-content: flex-end; }
+    .hud .turn { font-size: 19px; padding: 9px 15px 9px 13px; }
+    .hud { top: calc(76px + env(safe-area-inset-top, 0px)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dock button { transition: none; } .dock button:hover, .dock button:active { transform: none; } }
   @media (prefers-reduced-motion: reduce) { #loader { transition: none; } .modes button, .views button, .pieces button { transition: none; } .pieces button:hover, .modes button:active, .views button:active, .pieces button:active { transform: none; } }
 </style>
 
@@ -139,7 +188,7 @@
 
 <div id="loader" role="status" aria-live="polite">
   <div class="load-inner">
-    <div class="eyebrow"></div>
+    <div class="eyebrow">Umbrellab Ltd</div>
     <div class="t">Casting the set</div>
     <div class="bar"><i id="loadbar"></i></div>
     <div id="loadmsg">Loading models</div>
@@ -155,6 +204,7 @@
     <div class="controls">
     <div class="modes" role="group" aria-label="Mode">
       <button type="button" id="m-explore" aria-pressed="true">Explore</button>
+      <button type="button" id="m-learn" aria-pressed="false">Learn</button>
       <button type="button" id="m-play" aria-pressed="false">Play</button>
     </div>
     <div class="views" role="group" aria-label="Camera view">
@@ -171,10 +221,14 @@
       <h2 id="i-name">A kingdom you can play</h2>
       <p id="i-text">Each piece takes its form from something the Itsekiri people already honour: the Olu’s crown, the chiefs’ regalia, the Red Boat and the masquerade. The board is the water of Àlè Ìwẹ̀rẹ̀, with the rivers of the kingdom etched faintly beneath the squares.</p>
       <p class="note" id="i-note" hidden></p>
+      <p class="fb" id="i-fb" hidden></p>
       <div class="moves" id="i-moves" hidden></div>
       <div class="actions" id="i-actions" hidden>
+        <button type="button" id="g-hint">Hint</button>
         <button type="button" id="g-undo">Undo move</button>
         <button type="button" id="g-new">New game</button>
+        <button type="button" id="l-reset" hidden>Start again</button>
+        <button type="button" id="l-next" hidden>Next</button>
       </div>
     </section>
     <div class="pieces" role="group" aria-label="Pieces">
@@ -185,7 +239,26 @@
       <button type="button" data-piece="rook" aria-pressed="false">Rook</button>
       <button type="button" data-piece="pawn" aria-pressed="false">Pawn</button>
     </div>
+    <div class="path" id="l-path" role="group" aria-label="Learning path" hidden></div>
   </div>
+</div>
+
+<div class="hud" id="hud" hidden aria-live="polite">
+  <div class="turn"><span class="turn-dot w" id="hud-dot"></span><span id="hud-text">Your move</span></div>
+  <div class="sub" id="hud-sub"></div>
+</div>
+<div class="dock" id="dock" hidden>
+  <button type="button" id="d-hint" aria-label="Hint" title="Hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button type="button" id="d-undo" aria-label="Undo move" title="Undo move"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button type="button" id="d-menu" aria-label="Game settings" title="Game settings" aria-expanded="false" aria-controls="sheet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="16" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+</div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Game settings" hidden>
+      <div class="opts" id="i-opts">
+        <div class="optrow"><span class="lab">Opponent</span><div class="seg" role="group" aria-label="Opponent"><button type="button" data-opp="friend" aria-pressed="true">Friend</button><button type="button" data-opp="cpu" aria-pressed="false">Computer</button></div></div>
+        <div class="optrow" id="lvl" hidden><span class="lab">Level</span><div class="seg" role="group" aria-label="Computer level"><button type="button" data-lvl="easy" aria-pressed="false">Easy</button><button type="button" data-lvl="medium" aria-pressed="true">Medium</button><button type="button" data-lvl="hard" aria-pressed="false">Hard</button></div></div>
+      </div>
+  <div class="moves" id="s-moves"></div>
+  <button type="button" class="primary" id="s-new">New game</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.js"></script>
@@ -461,9 +534,13 @@ function darken(obj) {
 let allPieces = [];
 let byType = {};
 let proto = null;
+let mode = 'explore';
 const TYPE = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
-const game = new window.Chess();
-let squareMap = {};      // 'e4' -> piece object
+const exploreGame = new window.Chess();
+const playGame = new window.Chess();
+const learnGame = new window.Chess();
+let game = exploreGame;   // the position currently on the board
+let squareMap = {};       // 'e4' -> piece object
 const sqName = (f, r) => 'abcdefgh'[f] + (r + 1);
 const sqCoords = (n) => [n.charCodeAt(0) - 97, Number(n[1]) - 1];
 
@@ -486,23 +563,56 @@ function capturedLists() {
   game.history({ verbose: true }).forEach((m) => { if (m.captured) out[m.color === 'w' ? 'b' : 'w'].push(m.captured); });
   return out;
 }
-function rebuild() {
+function renderList(list, graves) {
   allPieces.forEach((p) => scene.remove(p));
   allPieces = []; byType = {}; squareMap = {};
-  game.board().forEach((row, i) => row.forEach((c, f) => {
-    if (!c) return;
-    const r = 7 - i, type = TYPE[c.type];
-    const p = make(type, c.color === 'b');
-    const v = sq(f, r); p.position.set(v.x, 0, v.z);
-    scene.add(p); allPieces.push(p); (byType[type] ||= []).push(p); squareMap[sqName(f, r)] = p;
-  }));
-  const cap = capturedLists();
-  for (const col of ['w', 'b']) cap[col].forEach((t, k) => {
+  list.forEach(({ type, dark, sq: name }) => {
+    const p = make(type, dark); const [f, r] = sqCoords(name); const v = sq(f, r);
+    p.position.set(v.x, 0, v.z);
+    scene.add(p); allPieces.push(p); (byType[type] ||= []).push(p); squareMap[name] = p;
+  });
+  if (graves) for (const col of ['w', 'b']) graves[col].forEach((t, k) => {
     const p = make(TYPE[t], col === 'b'); p.position.copy(graveSlot(col === 'b', k)); p.scale.multiplyScalar(0.8);
     p.userData.captured = true; scene.add(p); allPieces.push(p);
   });
   uniqueMaterials();
 }
+function gameList() {
+  const out = [];
+  game.board().forEach((row, i) => row.forEach((c, f) => { if (c) out.push({ type: TYPE[c.type], dark: c.color === 'b', sq: sqName(f, 7 - i) }); }));
+  return out;
+}
+function rebuild() { renderList(gameList(), mode === 'play' ? capturedLists() : null); }
+
+// coral beads: the targets in the movement lessons
+const coralMat = new THREE.MeshStandardMaterial({ color: 0xB4472C, roughness: 0.32, metalness: 0.1, emissive: 0x3A0E05, emissiveIntensity: 0.55 });
+const beadGeo = new THREE.CapsuleGeometry(0.06, 0.1, 6, 18);
+const targets = new THREE.Group(); scene.add(targets);
+let targetMap = {};
+function setTargets(names) {
+  targets.clear(); targetMap = {};
+  names.forEach((n) => {
+    const m = new THREE.Mesh(beadGeo, coralMat); const [f, r] = sqCoords(n); const v = sq(f, r);
+    m.position.set(v.x, 0.12, v.z); m.castShadow = true; m.userData.sq = n; targets.add(m); targetMap[n] = m;
+  });
+}
+
+// engraved coordinates on the bronze frame
+function coordTexture() {
+  const N = 2048, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'); const o = HALF + 0.3; const px = (w) => (w + o) / (2 * o) * N;
+  g.fillStyle = '#F3DDB0'; g.font = '600 40px Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (let k = 0; k < 8; k++) {
+    const x = -HALF + S * (k + 0.5), z = HALF - S * (k + 0.5);
+    g.fillText('abcdefgh'[k], px(x), px(HALF + 0.16));
+    g.fillText(String(k + 1), px(-HALF - 0.16), px(z));
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+const coords = new THREE.Mesh(new THREE.PlaneGeometry((HALF + 0.3) * 2, (HALF + 0.3) * 2),
+  new THREE.MeshBasicMaterial({ map: coordTexture(), transparent: true, opacity: 0.7, depthWrite: false }));
+coords.rotation.x = -Math.PI / 2; coords.position.y = 0.029; coords.renderOrder = 3;
+board.add(coords);
 
 Promise.all(files.map(loadPiece)).then((models) => {
   proto = {}; files.forEach((n, k) => proto[n] = models[k]);
@@ -519,6 +629,7 @@ const VIEWS = { // default view looks across the board so both armies show their
   set: { pos: new THREE.Vector3(6.2, 4.6, 3.4), target: new THREE.Vector3(0, 0.05, 0) },
   low: { pos: new THREE.Vector3(4.3, 0.85, 1.1), target: new THREE.Vector3(0, 0.32, 0.3) },
   top: { pos: new THREE.Vector3(0.001, 7.4, 0.25), target: new THREE.Vector3(0, 0, 0) },
+  learn: { pos: new THREE.Vector3(-1.25, 7.9, 5.2), target: new THREE.Vector3(-1.25, 0, 0.05) },
 };
 let tween = null;
 function flyTo(pos, target, ms = 1100) {
@@ -529,7 +640,7 @@ function flyTo(pos, target, ms = 1100) {
 function fitFor(view) {
   // pull back on narrow screens so the whole board stays in frame
   const a = camera.aspect, k = a < 0.8 ? 1.55 : a < 1 ? 1.3 : 1;
-  const v = VIEWS[view];
+  const v = view === 'learn' && a < 1 ? { pos: new THREE.Vector3(0, 7.2, 4.8), target: new THREE.Vector3(0, 0, 0.3) } : VIEWS[view];
   const dir = v.pos.clone().sub(v.target);
   return { pos: v.target.clone().add(dir.multiplyScalar(k)), target: v.target.clone() };
 }
@@ -588,7 +699,7 @@ canvas.addEventListener('pointerup', (e) => {
   const r = canvas.getBoundingClientRect();
   ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ptr, camera);
-  if (mode === 'play') { playClick(); return; }
+  if (mode !== 'explore') { boardClick(); return; }
   const hit = ray.intersectObjects(allPieces, true)[0];
   if (hit && hit.object.userData.piece) { const p = hit.object.userData.piece; select(p.userData.type, true, p); }
 });
@@ -602,16 +713,18 @@ function uniqueMaterials() {
   }));
 }
 
-// ---------- play ----------
-let mode = 'explore';
+// ---------- shared board interaction ----------
 let picked = null;           // square name of the lifted piece
 let busy = false;
+let hintSq = [];             // squares to ring as a hint
 const anims = [];
 const markers = new THREE.Group(); scene.add(markers);
 const markMat = new THREE.MeshBasicMaterial({ color: 0xF0CF8A, transparent: true, opacity: 0.9, depthWrite: false });
 const lastMat = new THREE.MeshBasicMaterial({ color: 0xF0CF8A, transparent: true, opacity: 0.16, depthWrite: false });
 const checkMat = new THREE.MeshBasicMaterial({ color: 0xE0603F, transparent: true, opacity: 0.85, depthWrite: false });
+const hintMat = new THREE.MeshBasicMaterial({ color: 0x7FE0D8, transparent: true, opacity: 0.9, depthWrite: false });
 const dotGeo = new THREE.CircleGeometry(0.065, 32), ringGeo = new THREE.RingGeometry(0.19, 0.225, 48), tileGeo = new THREE.PlaneGeometry(S * 0.98, S * 0.98);
+const hintGeo = new THREE.RingGeometry(0.205, 0.245, 48);
 function flat(geo, mat, name, y = 0.004) {
   const [f, r] = sqCoords(name); const v = sq(f, r);
   const m = new THREE.Mesh(geo, mat); m.rotation.x = -Math.PI / 2; m.position.set(v.x, y, v.z); m.renderOrder = 2; markers.add(m); return m;
@@ -619,30 +732,24 @@ function flat(geo, mat, name, y = 0.004) {
 let lastMove = null;
 function drawMarkers() {
   markers.clear();
-  if (mode !== 'play') return;
+  if (mode === 'explore') return;
+  hintSq.forEach((n) => flat(hintGeo, hintMat, n, 0.006));
+  if (mode === 'learn' && ex && ex.kind === 'drill') {
+    if (picked) drillMoves(ex.type, sqCoords(ex.pos), ex.targets).forEach((n) => flat(ex.targets.has(n) ? ringGeo : dotGeo, markMat, n));
+    return;
+  }
   if (lastMove) { flat(tileGeo, lastMat, lastMove.from, 0.002); flat(tileGeo, lastMat, lastMove.to, 0.002); }
   if (game.in_check()) {
     game.board().forEach((row, i) => row.forEach((c, f) => { if (c && c.type === 'k' && c.color === game.turn()) flat(ringGeo, checkMat, sqName(f, 7 - i)); }));
   }
   if (picked) game.moves({ square: picked, verbose: true }).forEach((mv) => flat(mv.captured ? ringGeo : dotGeo, markMat, mv.to));
 }
-const SIDE = { w: 'Bronze', b: 'Dark' };
-function status() {
-  const t = game.turn(), who = SIDE[t];
-  let head = `${who} to move`, text = `Tap a ${who.toLowerCase()} piece, then one of the highlighted squares.`;
-  if (game.in_checkmate()) { head = `Checkmate. ${SIDE[t === 'w' ? 'b' : 'w']} wins`; text = 'Start a new game or undo the last move.'; }
-  else if (game.in_stalemate()) { head = 'Stalemate'; text = 'The game is drawn. Start a new game or undo the last move.'; }
-  else if (game.in_draw()) { head = 'Draw'; text = 'The game is drawn. Start a new game or undo the last move.'; }
-  else if (game.in_check()) { head = `${who} is in check`; text = 'Move the king to safety, block the attack or capture the attacker.'; }
-  iSrc.innerHTML = `<span class="turn-dot ${t}"></span>Play · Two players`;
-  iName.textContent = head; iText.textContent = text; iNote.hidden = true;
-  const h = game.history();
-  const pairs = []; for (let k = 0; k < h.length; k += 2) pairs.push(`${k / 2 + 1}. ${h[k]}${h[k + 1] ? ' ' + h[k + 1] : ''}`);
-  iMoves.textContent = pairs.length ? pairs.slice(-4).join('   ') : 'No moves yet.';
-  gUndo.disabled = h.length === 0;
-}
-const iMoves = document.getElementById('i-moves'), iActions = document.getElementById('i-actions');
-const gUndo = document.getElementById('g-undo'), gNew = document.getElementById('g-new');
+const iMoves = document.getElementById('i-moves'), iActions = document.getElementById('i-actions'), iFb = document.getElementById('i-fb');
+const iOpts = document.getElementById('i-opts'), lvlSeg = document.getElementById('lvl');
+const gUndo = document.getElementById('g-undo'), gNew = document.getElementById('g-new'), gHint = document.getElementById('g-hint');
+const lNext = document.getElementById('l-next'), lReset = document.getElementById('l-reset');
+const pathEl = document.getElementById('l-path');
+function showButtons(list) { [gUndo, gNew, gHint, lNext, lReset].forEach((b) => { b.hidden = !list.includes(b); }); }
 
 function lift(name, on) {
   const p = squareMap[name]; if (!p) return;
@@ -660,77 +767,530 @@ function stepAnims(now) {
     if (t >= 1) { anims.splice(k, 1); a.res(); }
   }
 }
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 function squareFromHit() {
-  const hit = ray.intersectObjects([...allPieces.filter((p) => !p.userData.captured), surface], true)[0];
+  const hit = ray.intersectObjects([...allPieces.filter((p) => !p.userData.captured), ...targets.children, surface], true)[0];
   if (!hit) return null;
+  if (hit.object.userData.sq) return hit.object.userData.sq;
   const pc = hit.object.userData.piece;
   if (pc) { for (const [n, p] of Object.entries(squareMap)) if (p === pc) return n; return null; }
   const f = Math.floor((hit.point.x + HALF) / S), r = Math.floor((HALF - hit.point.z) / S);
   return f >= 0 && f < 8 && r >= 0 && r < 8 ? sqName(f, r) : null;
 }
-async function playClick() {
-  if (busy || game.game_over()) return;
+function boardClick() {
+  if (busy) return;
   const name = squareFromHit(); if (!name) return;
+  if (mode === 'learn' && ex && ex.kind === 'drill') { drillClick(name); return; }
+  if (mode === 'learn' && (!ex || ex.done)) return;
+  if (mode === 'play' && opponent === 'cpu' && game.turn() !== 'w') return;
+  if (game.game_over()) return;
   const here = game.get(name);
   if (picked) {
     const mv = game.moves({ square: picked, verbose: true }).find((m) => m.to === name);
-    if (mv) { await doMove(mv); return; }
+    if (mv) { doMove(mv); return; }
     lift(picked, false); picked = null;
   }
   if (here && here.color === game.turn() && game.moves({ square: name }).length) { picked = name; lift(name, true); }
   drawMarkers();
 }
 async function doMove(mv) {
-  busy = true;
+  busy = true; hintSq = [];
   const mover = squareMap[mv.from];
-  lift(mv.from, false);
+  if (picked) lift(picked, false);
   const jobs = [];
   if (mv.captured) {
     const capSq = mv.flags.includes('e') ? mv.to[0] + mv.from[1] : mv.to;
     const victim = squareMap[capSq];
-    const k = capturedLists()[game.turn() === 'w' ? 'b' : 'w'].length;
-    if (victim) jobs.push(animate(victim, graveSlot(game.turn() === 'w', k), 650, 0.5, victim.scale.x * 0.8));
+    if (victim && mode === 'play') {
+      const k = capturedLists()[game.turn() === 'w' ? 'b' : 'w'].length;
+      jobs.push(animate(victim, graveSlot(game.turn() === 'w', k), 650, 0.5, victim.scale.x * 0.8));
+    } else if (victim) jobs.push(animate(victim, victim.position.clone().setY(0.3), 450, 0, 0.001));
   }
   const [tf, tr] = sqCoords(mv.to); const tv = sq(tf, tr);
-  jobs.push(animate(mover, new THREE.Vector3(tv.x, 0, tv.z), 520, mv.piece === 'n' ? 0.45 : 0.18));
+  if (mover) jobs.push(animate(mover, new THREE.Vector3(tv.x, 0, tv.z), 520, mv.piece === 'n' ? 0.45 : 0.18));
   if (mv.flags.includes('k') || mv.flags.includes('q')) {
     const rank = mv.from[1], rf = mv.flags.includes('k') ? 'h' : 'a', rt = mv.flags.includes('k') ? 'f' : 'd';
     const rook = squareMap[rf + rank]; const [ff, rr] = sqCoords(rt + rank); const rv = sq(ff, rr);
     if (rook) jobs.push(animate(rook, new THREE.Vector3(rv.x, 0, rv.z), 520, 0.25));
   }
-  game.move({ from: mv.from, to: mv.to, promotion: 'q' });
+  const g = game;
+  const done = g.move({ from: mv.from, to: mv.to, promotion: mv.promotion || 'q' });
   lastMove = { from: mv.from, to: mv.to };
   picked = null; markers.clear();
   await Promise.all(jobs);
-  rebuild();             // settles promotion and keeps the scene in step with the rules
-  busy = false; status(); drawMarkers();
+  if (g !== game) return;   // the mode changed during the animation
+  rebuild();               // settles promotion and keeps the scene in step with the rules
+  busy = false;
+  if (mode === 'play') afterPlayMove(); else if (mode === 'learn') learnAfterMove(done);
 }
+
+// ---------- play: friend or computer ----------
+const hud = document.getElementById('hud'), hudDot = document.getElementById('hud-dot'), hudText = document.getElementById('hud-text'), hudSub = document.getElementById('hud-sub');
+const dock = document.getElementById('dock'), dHint = document.getElementById('d-hint'), dUndo = document.getElementById('d-undo'), dMenu = document.getElementById('d-menu');
+const sheet = document.getElementById('sheet'), sMoves = document.getElementById('s-moves'), sNew = document.getElementById('s-new');
+function openSheet(on) { sheet.hidden = !on; dMenu.setAttribute('aria-expanded', String(on)); }
+dMenu.addEventListener('click', () => openSheet(sheet.hidden));
+dHint.addEventListener('click', () => gHint.click());
+dUndo.addEventListener('click', () => gUndo.click());
+sNew.addEventListener('click', () => { gNew.click(); openSheet(false); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) openSheet(false); });
+canvas.addEventListener('pointerdown', () => { if (!sheet.hidden && !game.game_over()) openSheet(false); });
+const SIDE = { w: 'Bronze', b: 'Dark' };
+let opponent = 'friend', cpuLevel = 'medium', thinking = false;
+function status(extra) {
+  const t = game.turn(), who = SIDE[t];
+  const vsCpu = opponent === 'cpu';
+  let head = vsCpu ? (t === 'w' ? 'Your move' : 'Dark is thinking') : `${who} to move`;
+  let text = vsCpu ? (t === 'w' ? 'You play Bronze. Tap a piece, then a highlighted square.' : 'The computer is choosing its move.') : `Tap a ${who.toLowerCase()} piece, then one of the highlighted squares.`;
+  if (game.in_checkmate()) { const winner = t === 'w' ? 'b' : 'w'; head = vsCpu ? (winner === 'w' ? 'Checkmate. You win' : 'Checkmate. The computer wins') : `Checkmate. ${SIDE[winner]} wins`; text = 'Start a new game or undo the last move.'; }
+  else if (game.in_stalemate()) { head = 'Stalemate'; text = 'The game is drawn. Start a new game or undo the last move.'; }
+  else if (game.in_draw()) { head = 'Draw'; text = 'The game is drawn. Start a new game or undo the last move.'; }
+  else if (game.in_check()) { head = vsCpu && t === 'w' ? 'You are in check' : `${who} is in check`; text = 'Move the king to safety, block the attack or capture the attacker.'; }
+  const h = game.history({ verbose: true });
+  const last = h[h.length - 1];
+  let sub = extra || '';
+  if (!sub) {
+    if (game.game_over()) sub = 'Open the menu to start a new game.';
+    else if (game.in_check()) sub = 'Get the king out of check.';
+    else if (last) sub = `${SIDE[last.color]} played ${last.san}`;
+    else sub = vsCpu ? 'You play Bronze. Tap a piece to begin.' : 'Bronze moves first. Tap a piece to begin.';
+  }
+  hudDot.className = 'turn-dot ' + t;
+  hudText.textContent = head; hudSub.textContent = sub;
+  hud.classList.toggle('alert', game.in_check() || game.game_over());
+  const pairs = []; for (let k = 0; k < h.length; k += 2) pairs.push(`${k / 2 + 1}. ${h[k].san}${h[k + 1] ? ' ' + h[k + 1].san : ''}`);
+  sMoves.textContent = pairs.length ? pairs.join('   ') : 'No moves yet.';
+  dUndo.disabled = h.length === 0 || busy;
+  dHint.disabled = game.game_over() || busy || (vsCpu && t !== 'w');
+  if (game.game_over() && mode === 'play') openSheet(true);
+}
+async function afterPlayMove() {
+  status(); drawMarkers();
+  if (opponent === 'cpu' && game.turn() === 'b' && !game.game_over()) await computerMove();
+}
+async function computerMove() {
+  const g = game; busy = true; thinking = true; status();
+  const [m] = await Promise.all([pickMove(cpuLevel), wait(500)]);
+  thinking = false;
+  if (g !== game || mode !== 'play' || opponent !== 'cpu') { busy = false; return; }
+  busy = false;
+  if (m) await doMove(m); else status();
+}
+
+// the engine: Stockfish in a worker, with a small search of our own if it is unavailable
+let sf = null, sfOk = false, sfWait = null;
+function startEngine() {
+  if (sf) return;
+  try {
+    sf = new Worker('stockfish.js');
+    sf.onmessage = (e) => {
+      const line = typeof e.data === 'string' ? e.data : '';
+      if (line === 'readyok' || line === 'uciok') sfOk = true;
+      if (line.startsWith('bestmove') && sfWait) { const w = sfWait; sfWait = null; w(line.split(' ')[1]); }
+    };
+    sf.onerror = () => { sfOk = false; };
+    sf.postMessage('uci'); sf.postMessage('isready');
+  } catch (err) { sf = null; }
+}
+function engineBest(fen, cfg) {
+  return new Promise((res) => {
+    if (!sf || !sfOk) return res(null);
+    const timer = setTimeout(() => { sfWait = null; res(null); }, (cfg.movetime || 0) + 8000);
+    sfWait = (m) => { clearTimeout(timer); res(m && m !== '(none)' ? m : null); };
+    sf.postMessage('setoption name Skill Level value ' + cfg.skill);
+    sf.postMessage('position fen ' + fen);
+    sf.postMessage(cfg.movetime ? 'go movetime ' + cfg.movetime : 'go depth ' + cfg.depth);
+  });
+}
+const PV = { p: 1, n: 3, b: 3.2, r: 5, q: 9, k: 0 };
+function evalBoard(g) { let s = 0; g.board().forEach((row) => row.forEach((c) => { if (c) s += (c.color === 'w' ? 1 : -1) * PV[c.type]; })); return s; }
+function negamax(g, depth, alpha, beta) {
+  if (g.in_checkmate()) return -1000 - depth;
+  if (g.in_draw() || g.in_stalemate()) return 0;
+  if (depth === 0) return (g.turn() === 'w' ? 1 : -1) * evalBoard(g);
+  let best = -Infinity;
+  const ms = g.moves({ verbose: true }).sort((a, b) => (b.captured ? PV[b.captured] : 0) - (a.captured ? PV[a.captured] : 0));
+  for (const m of ms) { g.move(m); const v = -negamax(g, depth - 1, -beta, -alpha); g.undo(); if (v > best) best = v; if (v > alpha) alpha = v; if (alpha >= beta) break; }
+  return best;
+}
+function jsBest(g, depth) {
+  let best = -Infinity, pool = [];
+  for (const m of g.moves({ verbose: true })) {
+    g.move(m); const v = -negamax(g, depth - 1, -Infinity, Infinity); g.undo();
+    if (v > best + 0.05) { best = v; pool = [m]; } else if (Math.abs(v - best) <= 0.05) pool.push(m);
+  }
+  return pool[Math.floor(Math.random() * pool.length)] || null;
+}
+const LEVELS = { easy: { skill: 0, depth: 1, blunder: 0.3 }, medium: { skill: 6, depth: 6, blunder: 0.04 }, hard: { skill: 18, movetime: 900, blunder: 0 }, hint: { skill: 20, movetime: 700, blunder: 0 } };
+async function pickMove(level) {
+  const g = game, legal = g.moves({ verbose: true }); if (!legal.length) return null;
+  const L = LEVELS[level];
+  if (Math.random() < L.blunder) return legal[Math.floor(Math.random() * legal.length)];
+  const u = await engineBest(g.fen(), L);
+  if (u) { const m = legal.find((x) => x.from === u.slice(0, 2) && x.to === u.slice(2, 4) && (!u[4] || x.promotion === u[4])); if (m) return m; }
+  return jsBest(g, level === 'easy' ? 1 : 2);
+}
+
 gUndo.addEventListener('click', () => {
-  if (busy) return; game.undo(); picked = null;
+  if (busy || mode !== 'play') return;
+  game.undo();
+  if (opponent === 'cpu' && game.turn() === 'b') game.undo();
+  picked = null; hintSq = [];
   const h = game.history({ verbose: true }); lastMove = h.length ? { from: h[h.length - 1].from, to: h[h.length - 1].to } : null;
   rebuild(); status(); drawMarkers();
 });
-gNew.addEventListener('click', () => { if (busy) return; game.reset(); picked = null; lastMove = null; rebuild(); status(); drawMarkers(); });
+gNew.addEventListener('click', () => {
+  if (busy || mode !== 'play') return;
+  game.reset(); picked = null; lastMove = null; hintSq = [];
+  if (sf) sf.postMessage('ucinewgame');
+  rebuild(); status(); drawMarkers();
+});
+gHint.addEventListener('click', async () => {
+  if (busy) return;
+  if (mode === 'learn') { learnHint(); return; }
+  busy = true; status('Looking for a good move…');
+  const m = await pickMove('hint'); busy = false;
+  if (!m || mode !== 'play') { status(); return; }
+  hintSq = [m.from, m.to]; status(`Suggested move: ${m.san}. The highlighted squares show it.`); drawMarkers();
+});
+document.querySelectorAll('[data-opp]').forEach((b) => b.addEventListener('click', () => {
+  if (busy) return;
+  opponent = b.dataset.opp;
+  document.querySelectorAll('[data-opp]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  lvlSeg.hidden = opponent !== 'cpu';
+  if (opponent === 'cpu') startEngine();
+  status();
+  if (opponent === 'cpu' && game.turn() === 'b' && !game.game_over()) computerMove();
+}));
+document.querySelectorAll('[data-lvl]').forEach((b) => b.addEventListener('click', () => {
+  cpuLevel = b.dataset.lvl;
+  document.querySelectorAll('[data-lvl]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  if (!busy) status();
+}));
 
-const mExplore = document.getElementById('m-explore'), mPlay = document.getElementById('m-play');
+// ---------- learn: an adaptive path ----------
+const PUZ = {"mate1":[{"fen":"7k/5Rpp/4R3/4p3/8/8/8/7K w - - 0 1","sol":["f7f8","e6e8"],"tier":1},{"fen":"7k/5Rpp/p7/8/8/8/1K6/5R2 w - - 0 1","sol":["f7f8"],"tier":1},{"fen":"7k/6pp/8/8/5Rn1/3K4/2R5/8 w - - 0 1","sol":["f4f8","c2c8"],"tier":1},{"fen":"7k/6pp/8/8/8/1K2n3/7Q/3R4 w - - 0 1","sol":["h2b8","d1d8"],"tier":1},{"fen":"2rk4/3pp3/8/8/2Q5/8/2R5/5K2 w - - 0 1","sol":["c4c8","c4g8"],"tier":1},{"fen":"k7/pp5R/3p4/8/8/8/6RK/8 w - - 0 1","sol":["h7h8","g2g8"],"tier":1},{"fen":"3k1n2/2pp4/8/8/8/4R3/5RK1/8 w - - 0 1","sol":["f2f8"],"tier":1},{"fen":"k7/pp6/3R4/8/8/3p4/8/2R3K1 w - - 0 1","sol":["d6d8","c1c8"],"tier":1},{"fen":"k2b4/p7/8/8/7Q/7K/8/1R6 w - - 0 1","sol":["h4d8","h4e4"],"tier":1},{"fen":"7k/6pp/2R5/4r3/5R2/8/K7/8 w - - 0 1","sol":["f4f8"],"tier":1},{"fen":"k7/pp6/8/6R1/8/4r3/2R2K2/8 w - - 0 1","sol":["c2c8"],"tier":1},{"fen":"k7/pp6/8/Q5R1/8/8/8/2K5 w - - 0 1","sol":["a5d8","g5g8"],"tier":1},{"fen":"k7/p7/8/3p1R2/8/1R6/8/4K3 w - - 0 1","sol":["f5f8"],"tier":1},{"fen":"7k/7p/1p4Rp/8/8/1K2R3/8/8 w - - 0 1","sol":["e3e8"],"tier":1},{"fen":"7k/2R4p/6p1/4p3/8/2n5/7K/5R2 w - - 0 1","sol":["f1f8"],"tier":2},{"fen":"5k2/p3ppp1/Q4P2/8/7R/8/8/1K6 w - - 0 1","sol":["a6c8","h4h8"],"tier":2},{"fen":"4kb2/3p1p2/8/4B3/1Q6/8/8/2QK4 w - - 0 1","sol":["c1c8"],"tier":2},{"fen":"7k/6pp/2R3rQ/5Rb1/8/3K4/8/8 w - - 0 1","sol":["f5f8"],"tier":2},{"fen":"7k/2R4p/6p1/4p3/8/2n5/7K/5R2 w - - 0 1","sol":["f1f8"],"tier":2},{"fen":"5k2/p3ppp1/Q4P2/8/7R/8/8/1K6 w - - 0 1","sol":["a6c8","h4h8"],"tier":2},{"fen":"4kb2/3p1p2/8/4B3/1Q6/8/8/2QK4 w - - 0 1","sol":["c1c8"],"tier":2},{"fen":"7k/6pp/2R3rQ/5Rb1/8/3K4/8/8 w - - 0 1","sol":["f5f8"],"tier":2},{"fen":"7k/2R4p/6p1/4p3/8/2n5/7K/5R2 w - - 0 1","sol":["f1f8"],"tier":2},{"fen":"5k2/p3ppp1/Q4P2/8/7R/8/8/1K6 w - - 0 1","sol":["a6c8","h4h8"],"tier":2},{"fen":"4kb2/3p1p2/8/4B3/1Q6/8/8/2QK4 w - - 0 1","sol":["c1c8"],"tier":2},{"fen":"7k/6pp/2R3rQ/5Rb1/8/3K4/8/8 w - - 0 1","sol":["f5f8"],"tier":2},{"fen":"7k/2R4p/6p1/4p3/8/2n5/7K/5R2 w - - 0 1","sol":["f1f8"],"tier":2},{"fen":"5k2/p3ppp1/Q4P2/8/7R/8/8/1K6 w - - 0 1","sol":["a6c8","h4h8"],"tier":2},{"fen":"4k3/2P1p3/2N1p3/2Q5/8/1Q2r3/8/1K6 w - - 0 1","sol":["c5e7"],"tier":3},{"fen":"1k6/p5R1/r1p5/2p5/8/2b1K3/3R4/B4R2 w - - 0 1","sol":["d2d8","f1f8"],"tier":3},{"fen":"3k1bn1/Q2pp3/B4R2/8/8/3n4/5P2/7K w - - 0 1","sol":["a7b8","f6f8"],"tier":3},{"fen":"1k5n/pp5R/8/6Qn/8/1p4R1/B4K2/8 w - - 0 1","sol":["g5d8","g5g8"],"tier":3},{"fen":"6k1/1PQ4p/8/B1np4/8/5K1p/7N/8 w - - 0 1","sol":["b7b8q","b7b8r"],"tier":3},{"fen":"4k3/Q3p3/8/8/1B1pP1p1/5p2/1K4P1/8 w - - 0 1","sol":["a7e7"],"tier":3},{"fen":"3k4/1Qp1pr2/8/4N3/2pB4/1p6/6N1/7K w - - 0 1","sol":["b7a8","b7b8"],"tier":3},{"fen":"5k2/4p1pP/6Q1/2n5/3n2b1/8/1N1B1K2/8 w - - 0 1","sol":["h7h8q","h7h8r"],"tier":3},{"fen":"2rk4/2pp4/1p6/7R/1P1N2b1/6K1/8/4Q3 w - - 0 1","sol":["h5h8"],"tier":3},{"fen":"1k2b3/pp6/7b/7N/3Q4/6p1/2Q2RK1/8 w - - 0 1","sol":["d4d8"],"tier":3},{"fen":"4k3/4p1Q1/3p1nr1/2p5/8/Q1P5/4R3/2K5 w - - 0 1","sol":["g7e7"],"tier":3},{"fen":"nk6/3Q3R/pp6/8/7b/3P4/1K6/8 w - - 0 1","sol":["d7b7"],"tier":3},{"fen":"8/1N2kp2/4pp1B/1n6/3Q4/3R4/7K/8 w - - 0 1","sol":["d4d7","d4d8"],"tier":3},{"fen":"7k/4N1Rp/2r5/1Q2N3/8/2p2n2/8/5K2 w - - 0 1","sol":["g7g8"],"tier":3}],"mate2":[{"fen":"7k/7p/4b3/2Q5/8/8/2B5/2K5 w - - 0 1","sol":["c5f8"],"tier":1},{"fen":"8/1k6/p7/1p5b/5B2/8/2Q5/6K1 w - - 0 1","sol":["c2c7"],"tier":1},{"fen":"k7/p7/8/8/8/2R5/8/R1K5 w - - 0 1","sol":["c3b3"],"tier":1},{"fen":"k7/p7/p7/7B/8/8/K7/5R2 w - - 0 1","sol":["f1b1"],"tier":1},{"fen":"8/r2k4/1Q2p3/2p5/R7/8/8/2K5 w - - 0 1","sol":["a4a7"],"tier":1},{"fen":"n7/7k/6pp/1R6/8/3R4/8/7K w - - 0 1","sol":["d3d7"],"tier":1},{"fen":"k7/pp6/5b2/4R3/8/8/5N1K/8 w - - 0 1","sol":["e5e8"],"tier":1},{"fen":"5k2/R3p3/8/8/2p5/4Q3/3K4/8 w - - 0 1","sol":["e3e7"],"tier":1},{"fen":"k7/p2b4/8/7R/8/1K6/8/3Q4 w - - 0 1","sol":["d1d7"],"tier":1},{"fen":"8/6k1/3R3p/6p1/7n/2RK4/8/8 w - - 0 1","sol":["c3c7"],"tier":1},{"fen":"1k3rr1/Rp3R1R/8/8/8/8/3K4/8 w - - 0 1","sol":["f7b7"],"tier":2},{"fen":"6k1/1p5p/1p4p1/2Q5/8/2R3K1/8/1N6 w - - 0 1","sol":["c5e7"],"tier":2},{"fen":"k7/ppB5/N6Q/5r2/r7/8/8/1K6 w - - 0 1","sol":["h6h8"],"tier":2},{"fen":"k7/pp6/8/7R/1b2p3/1R5K/2N5/8 w - - 0 1","sol":["h5h8"],"tier":2},{"fen":"6k1/6p1/6Rp/6Q1/6b1/1b6/3R4/1K6 w - - 0 1","sol":["g6g7"],"tier":2},{"fen":"3k4/3p4/6Q1/p4b2/8/8/6K1/4R1N1 w - - 0 1","sol":["g6b6"],"tier":2},{"fen":"4k3/1R1p1p2/8/8/n7/1Rb4Q/8/2K5 w - - 0 1","sol":["h3d7"],"tier":2},{"fen":"k7/pp6/8/B5R1/4p3/b6K/R7/8 w - - 0 1","sol":["g5g8"],"tier":2},{"fen":"7k/6pp/5B2/1N5b/R7/8/8/6K1 w - - 0 1","sol":["a4a8"],"tier":2},{"fen":"k7/pp6/8/5N2/8/b7/5N2/4K1Q1 w - - 0 1","sol":["g1g8"],"tier":2}],"capture":[{"fen":"5qr1/k7/p4N2/8/8/8/8/4K3 w - - 0 1","sol":["f6g8"],"tier":1},{"fen":"2k5/1p6/8/8/B2p3N/5q2/7K/8 w - - 0 1","sol":["h4f3"],"tier":1},{"fen":"3q1k2/1N2p3/8/3q4/8/6K1/8/N7 w - - 0 1","sol":["b7d8"],"tier":1},{"fen":"2k5/3p4/8/8/1q1r4/5R2/6K1/6B1 w - - 0 1","sol":["g1d4"],"tier":1},{"fen":"4k3/3p4/8/5n2/5Q2/3r2P1/7K/8 w - - 0 1","sol":["f4f5"],"tier":1},{"fen":"k7/p7/5b2/8/B5R1/3Kn3/8/8 w - - 0 1","sol":["d3e3"],"tier":1},{"fen":"2q4k/7p/1B6/8/5b2/2N2K2/8/8 w - - 0 1","sol":["f3f4"],"tier":1},{"fen":"7k/6qp/2r5/8/8/8/K1RR4/8 w - - 0 1","sol":["c2c6"],"tier":1},{"fen":"3k4/3p3q/7B/1r6/8/N7/3K4/8 w - - 0 1","sol":["a3b5"],"tier":1},{"fen":"1q5k/1N4p1/8/5n2/6P1/K7/8/8 w - - 0 1","sol":["g4f5"],"tier":1},{"fen":"1k6/p6r/1N6/4r3/8/8/2BK4/8 w - - 0 1","sol":["c2h7"],"tier":1},{"fen":"7k/P6p/4r3/8/8/3R1r2/1K6/8 w - - 0 1","sol":["d3f3"],"tier":1},{"fen":"k7/5R2/p1b5/6b1/5P2/6K1/8/8 w - - 0 1","sol":["f4g5"],"tier":1},{"fen":"8/7k/7p/4q3/5P1P/5b2/K7/8 w - - 0 1","sol":["f4e5"],"tier":1},{"fen":"1b6/Qp2k2n/5p2/8/8/8/5K2/8 w - - 0 1","sol":["a7b8"],"tier":2},{"fen":"1k4b1/2p5/8/8/6B1/2q3Q1/5K2/6R1 w - - 0 1","sol":["g3c3"],"tier":2},{"fen":"4k3/Q3p2b/6P1/2nq4/8/8/8/K2B4 w - - 0 1","sol":["g6h7"],"tier":2},{"fen":"5k2/5p2/1p1qQp2/8/R7/4K3/8/4N3 w - - 0 1","sol":["e6d6"],"tier":2},{"fen":"n4k2/5p2/1N6/5r2/8/7b/8/1K1B1R2 w - - 0 1","sol":["b6a8"],"tier":2},{"fen":"4k3/3p3p/8/B1r5/3R4/6Kn/7N/8 w - - 0 1","sol":["g3h3"],"tier":2},{"fen":"8/q4k2/3P3Q/4p3/2rp4/3K4/5B2/8 w - - 0 1","sol":["d3c4"],"tier":2},{"fen":"4n3/k7/1p6/P7/6q1/5Q1r/1N1K4/8 w - - 0 1","sol":["f3g4"],"tier":2},{"fen":"4k3/3p4/1B6/3N1b2/2pQ3n/8/8/K7 w - - 0 1","sol":["d4h4"],"tier":2},{"fen":"2k5/1p6/B1n5/5n2/8/n1B3P1/K7/8 w - - 0 1","sol":["a2a3"],"tier":2},{"fen":"4k3/8/3p2q1/4B3/3n1q2/1PK5/N7/8 w - - 0 1","sol":["e5f4"],"tier":2},{"fen":"7k/2P4B/5b1p/8/r1R1r3/8/2K5/8 w - - 0 1","sol":["h7e4"],"tier":2},{"fen":"8/3k4/1p1p2Q1/1q4r1/8/8/4BK2/5N2 w - - 0 1","sol":["e2b5"],"tier":2},{"fen":"4q2k/7p/8/3r4/5N2/2Kn4/6PR/8 w - - 0 1","sol":["f4d5"],"tier":2},{"fen":"6k1/8/2p2pp1/p7/7q/K3N3/3Q1Q2/7B w - - 0 1","sol":["f2h4"],"tier":3},{"fen":"2r1k3/2ppb2p/1N2R3/1B6/8/8/8/Q4K2 w - - 0 1","sol":["b6c8"],"tier":3},{"fen":"8/3B1k2/5p2/nr6/1B1rRr2/8/5N2/6K1 w - - 0 1","sol":["d7b5"],"tier":3},{"fen":"8/4k1B1/1R2Pp2/4bn2/5Q2/5q1p/2K5/8 w - - 0 1","sol":["f4f3"],"tier":3},{"fen":"k7/1p4Q1/n5Q1/7b/p7/p7/1B6/K1Q5 w - - 0 1","sol":["g6h5"],"tier":3},{"fen":"k3q3/p7/4b1B1/8/5P2/1Q1p4/8/2K5 w - - 0 1","sol":["g6e8"],"tier":3},{"fen":"3k4/P1p1bn2/1q1b1Q2/R7/8/8/3Q2K1/8 w - - 0 1","sol":["f6f7"],"tier":3},{"fen":"2k5/2pR1Qr1/3q3q/8/3Q1p2/8/1K6/8 w - - 0 1","sol":["d7d6"],"tier":3},{"fen":"2r1k3/2ppb2p/1N2R3/1B6/8/8/8/Q4K2 w - - 0 1","sol":["b6c8"],"tier":3},{"fen":"8/3B1k2/5p2/nr6/1B1rRr2/8/5N2/6K1 w - - 0 1","sol":["d7b5"],"tier":3},{"fen":"8/4k1B1/1R2Pp2/4bn2/5Q2/5q1p/2K5/8 w - - 0 1","sol":["f4f3"],"tier":3},{"fen":"k7/1p4Q1/n5Q1/7b/p7/p7/1B6/K1Q5 w - - 0 1","sol":["g6h5"],"tier":3},{"fen":"k3q3/p7/4b1B1/8/5P2/1Q1p4/8/2K5 w - - 0 1","sol":["g6e8"],"tier":3},{"fen":"3k4/P1p1bn2/1q1b1Q2/R7/8/8/3Q2K1/8 w - - 0 1","sol":["f6f7"],"tier":3}],"check":[{"fen":"2k5/1n1pR3/2p5/8/8/8/K7/2N5 w - - 0 1","sol":["e7e8"],"tier":1},{"fen":"8/1k6/1p6/p7/8/1K2N3/3R4/8 w - - 0 1","sol":["d2d7"],"tier":1},{"fen":"k7/1p6/3b4/6Q1/5R2/8/7K/8 w - - 0 1","sol":["g5d8","g5g8","g5a5"],"tier":1},{"fen":"8/k5n1/p7/p7/8/4R3/6KR/8 w - - 0 1","sol":["e3e7"],"tier":1},{"fen":"8/2k5/1pp5/8/1n6/8/1BB3K1/8 w - - 0 1","sol":["b2e5"],"tier":1},{"fen":"4k3/1B3p2/8/5p2/6N1/8/8/7K w - - 0 1","sol":["b7c6","g4f6"],"tier":1},{"fen":"6k1/6pp/1N6/8/8/8/8/3KR3 w - - 0 1","sol":["e1e8"],"tier":1},{"fen":"2k5/3p4/2p5/3p2R1/1B6/7K/8/8 w - - 0 1","sol":["g5g8"],"tier":1},{"fen":"8/6k1/7p/5p2/4N3/5p2/8/2RK4 w - - 0 1","sol":["c1c7"],"tier":1},{"fen":"6k1/1p3pp1/4R3/8/8/6K1/5R2/8 w - - 0 1","sol":["e6e8"],"tier":1},{"fen":"2k5/8/1p1p2n1/8/8/8/4R3/2B4K w - - 0 1","sol":["e2e8","e2c2"],"tier":1},{"fen":"8/4n1k1/Q4p1p/8/8/8/1B6/2K5 w - - 0 1","sol":["a6f6","b2f6"],"tier":1},{"fen":"3r1k2/3Rp3/4p3/8/8/2N5/4K3/8 w - - 0 1","sol":["d7d8"],"tier":1},{"fen":"7k/B5p1/6p1/8/1R4n1/8/6K1/8 w - - 0 1","sol":["b4b8"],"tier":1},{"fen":"4k3/3p1p1B/4p1Q1/5n2/8/8/8/7K w - - 0 1","sol":["g6g8"],"tier":2},{"fen":"1b6/3k4/2p5/1nR1p3/8/4K3/8/5R2 w - - 0 1","sol":["f1f7","f1d1"],"tier":2},{"fen":"8/4Q1rk/8/6pp/8/4bK2/8/7N w - - 0 1","sol":["e7e4"],"tier":2},{"fen":"7b/7k/6p1/7p/3Q3n/8/8/3K3Q w - - 0 1","sol":["d4a7","d4d7","h1b7"],"tier":2},{"fen":"2n3k1/3Q1Np1/7p/n7/8/8/3K4/8 w - - 0 1","sol":["d7c8","d7d8","d7e8"],"tier":2},{"fen":"6k1/6pp/8/b2r4/5Q2/6K1/8/6N1 w - - 0 1","sol":["f4b8"],"tier":2},{"fen":"8/6k1/5p2/6pp/8/4b1K1/2Q1N3/8 w - - 0 1","sol":["c2c7"],"tier":2},{"fen":"7k/7p/5Nb1/8/6b1/8/8/5K1Q w - - 0 1","sol":["h1a8"],"tier":2},{"fen":"1k6/p1p5/8/r5Q1/6B1/6n1/8/1K6 w - - 0 1","sol":["g5d8","g5g8"],"tier":2},{"fen":"3k4/2pp4/3b2b1/8/8/4B2Q/8/3K4 w - - 0 1","sol":["e3g5","h3h4","h3h8"],"tier":2},{"fen":"2k5/3p4/1p6/6Q1/Rb4n1/8/1K6/8 w - - 0 1","sol":["g5g8","g5c1","a4a8"],"tier":2},{"fen":"4k3/bp2p3/3p4/8/8/7Q/4K3/2N5 w - - 0 1","sol":["h3c8","h3h5","h3h8"],"tier":2},{"fen":"2r2k2/5p2/1B4p1/4r1B1/8/8/8/3K4 w - - 0 1","sol":["g5h6"],"tier":2},{"fen":"2k5/3p2R1/8/5b2/n7/5B2/8/7K w - - 0 1","sol":["g7g8"],"tier":2},{"fen":"8/3k4/1Q2p3/3p3p/br6/8/8/KN6 w - - 0 1","sol":["b6a7"],"tier":3},{"fen":"4b3/2kn4/3pp2B/8/8/KQ6/8/8 w - - 0 1","sol":["b3c4","b3c3","b3c2"],"tier":3},{"fen":"4k3/3p4/8/5p2/5r1Q/4b3/2K5/7Q w - - 0 1","sol":["h4h5","h4h8","h1a8"],"tier":3},{"fen":"4r3/7k/rB3Qp1/8/n7/8/7K/8 w - - 0 1","sol":["f6f7","f6h4"],"tier":3},{"fen":"rk4b1/1p6/2p3R1/8/8/1b3K2/8/Q7 w - - 0 1","sol":["a1e5"],"tier":3},{"fen":"6k1/7p/1r3p1p/4QR2/3n4/7K/8/8 w - - 0 1","sol":["e5e8","e5g3","e5d5"],"tier":3},{"fen":"1k6/1pp4n/8/2Qr4/8/1n5K/8/4Q3 w - - 0 1","sol":["e1e8"],"tier":3},{"fen":"1n3k2/Q4pp1/1N6/8/8/5K1n/8/8 w - - 0 1","sol":["a7b8","a7a3"],"tier":3},{"fen":"4k2b/3p1p2/1R6/2p5/8/1p5Q/8/5K2 w - - 0 1","sol":["b6b8","h3h8","h3e3"],"tier":3},{"fen":"7k/2Q4p/3n2r1/5B2/8/6p1/8/1K6 w - - 0 1","sol":["c7b8","c7d8","c7c3"],"tier":3},{"fen":"1k2r3/pp6/7b/7B/3Q4/6p1/6K1/8 w - - 0 1","sol":["d4d6"],"tier":3},{"fen":"3kb3/2p3Q1/2p1n1R1/8/8/3r4/K7/8 w - - 0 1","sol":["g7f6"],"tier":3},{"fen":"8/3k4/3pb3/2pQ4/N7/1n1r4/6K1/8 w - - 0 1","sol":["d5b7","a4b6"],"tier":3},{"fen":"2k5/2p4b/8/2Q5/8/n6p/1K1R4/8 w - - 0 1","sol":["c5f8"],"tier":3}]};
+const SKILLS = [
+  { id: 'moves', name: 'Moving the pieces', short: 'Moves', max: 6,
+    intro: 'Every piece in this set moves its own way. Guide it across the water and capture every coral bead in as few moves as you can.' },
+  { id: 'capture', name: 'Winning material', short: 'Captures', max: 3,
+    intro: 'Pieces have rough values: pawn 1, knight and bishop 3, rook 5, queen 9. A good capture takes more than it gives back.',
+    task: 'Black has left something loose. Find the capture that wins material without losing your piece.' },
+  { id: 'check', name: 'Giving check', short: 'Check', max: 3,
+    intro: 'A check is an attack on the king, and Black must answer it at once.',
+    task: 'Give check with a piece that Black cannot simply capture.' },
+  { id: 'mate1', name: 'Checkmate in one', short: 'Mate in 1', max: 3,
+    intro: 'Checkmate is a check the king cannot escape: no safe square, no block and no capture.',
+    task: 'Find the move that checkmates the dark king.' },
+  { id: 'mate2', name: 'Checkmate in two', short: 'Mate in 2', max: 2,
+    intro: 'Now look two moves ahead. Your first move should leave Black with no good answer.',
+    task: 'Play a move that forces checkmate on your next turn.' },
+];
+const PIECE_LESSON = {
+  rook: { title: 'The Red Boat', how: 'The rook sails in straight lines along ranks and files, as far as the water is clear.' },
+  bishop: { title: 'The chief', how: 'The bishop moves diagonally any distance, so it always stays on squares of one colour.' },
+  queen: { title: 'The queen', how: 'The queen joins boat and chief: straight lines and diagonals, any distance.' },
+  king: { title: 'The Olu', how: 'The king moves one square in any direction. Slow, but every step matters.' },
+  knight: { title: 'The procession horse', how: 'The knight leaps in an L: two squares one way, then one to the side. It jumps over anything in its path.' },
+  pawn: { title: 'The masquerade', how: 'The pawn walks straight ahead (two squares on its first step) but captures one square diagonally forward.' },
+};
+const STORE = 'olu-chess-learn-v1';
+function freshProgress() { const p = { unlocked: 1, focus: 'guided' }; SKILLS.forEach((s) => { p[s.id] = { m: 0, level: 1, n: 0, streak: 0, seen: [] }; }); return p; }
+let prog = freshProgress();
+try { const raw = localStorage.getItem(STORE); if (raw) { const saved = JSON.parse(raw); if (saved && saved.moves) prog = Object.assign(freshProgress(), saved); } } catch (err) { /* progress stays in memory */ }
+function saveProg() { try { localStorage.setItem(STORE, JSON.stringify(prog)); } catch (err) { /* ignore */ } }
+const skillById = (id) => SKILLS.find((s) => s.id === id);
+let ex = null;
+
+function chooseSkill() {
+  if (prog.focus !== 'guided') return prog.focus;
+  const open = SKILLS.slice(0, prog.unlocked);
+  const newest = open[open.length - 1];
+  const weakest = open.slice().sort((a, b) => prog[a.id].m - prog[b.id].m)[0];
+  // mostly the newest skill, with regular review of whatever is weakest
+  if (open.length > 1 && Math.random() < 0.25) return weakest.id;
+  if (prog[newest.id].m >= 0.85) return weakest.id;
+  return newest.id;
+}
+
+// movement lessons: one piece, a few coral beads, find the shortest route
+const OFFS = { knight: [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]], king: [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]] };
+const RAYS = { rook: [[1, 0], [-1, 0], [0, 1], [0, -1]], bishop: [[1, 1], [1, -1], [-1, 1], [-1, -1]] }; RAYS.queen = [...RAYS.rook, ...RAYS.bishop];
+const inb = (a, b) => a >= 0 && a < 8 && b >= 0 && b < 8;
+function drillMoves(type, [f, r], tset) {
+  const out = [];
+  if (RAYS[type]) for (const [dx, dy] of RAYS[type]) { let x = f + dx, y = r + dy; while (inb(x, y)) { const n = sqName(x, y); out.push(n); if (tset.has(n)) break; x += dx; y += dy; } }
+  else if (OFFS[type]) { for (const [dx, dy] of OFFS[type]) if (inb(f + dx, r + dy)) out.push(sqName(f + dx, r + dy)); }
+  else if (type === 'pawn' && r < 7) {
+    const a = sqName(f, r + 1);
+    if (!tset.has(a)) { out.push(a); if (r === 1 && !tset.has(sqName(f, 3))) out.push(sqName(f, 3)); }
+    for (const dx of [-1, 1]) if (inb(f + dx, r + 1) && tset.has(sqName(f + dx, r + 1))) out.push(sqName(f + dx, r + 1));
+  }
+  return out;
+}
+function drillPath(type, start, tlist) {
+  // breadth-first search over (square, beads left): the shortest route that captures every bead
+  const idx = Object.fromEntries(tlist.map((n, k) => [n, k]));
+  const full = (1 << tlist.length) - 1;
+  const key = (n, mask) => n + ':' + mask;
+  const prev = new Map([[key(start, full), null]]);
+  let q = [[start, full]];
+  while (q.length) {
+    const nq = [];
+    for (const [n, mask] of q) {
+      if (mask === 0) { const path = []; let k = key(n, mask); while (prev.get(k)) { path.unshift(k.split(':')[0]); k = prev.get(k); } return path; }
+      const left = new Set(tlist.filter((t) => mask & (1 << idx[t])));
+      for (const d of drillMoves(type, sqCoords(n), left)) {
+        const nm = left.has(d) ? mask & ~(1 << idx[d]) : mask; const k2 = key(d, nm);
+        if (!prev.has(k2)) { prev.set(k2, key(n, mask)); nq.push([d, nm]); }
+      }
+    }
+    q = nq;
+  }
+  return null;
+}
+function newDrill(level) {
+  const order = ['rook', 'bishop', 'queen', 'king', 'knight', 'pawn'];
+  const pool = order.slice(0, Math.min(6, level));
+  const type = Math.random() < 0.55 ? pool[pool.length - 1] : pool[Math.floor(Math.random() * pool.length)];
+  const nT = level <= 2 ? 2 : level <= 4 ? 3 : 4;
+  for (let tries = 0; tries < 400; tries++) {
+    let start, tl = [];
+    if (type === 'pawn') {
+      let x = 1 + Math.floor(Math.random() * 6), y = 1; start = sqName(x, y);
+      while (y < 6 && tl.length < Math.min(nT, 3)) {
+        const dx = Math.random() < 0.5 ? -1 : 1;
+        if (Math.random() < 0.65 && inb(x + dx, y + 1)) { x += dx; y += 1; tl.push(sqName(x, y)); } else { y += 1; }
+      }
+      if (tl.length < 2) continue;
+    } else {
+      start = sqName(Math.floor(Math.random() * 8), Math.floor(Math.random() * 8));
+      while (tl.length < nT) { const n = sqName(Math.floor(Math.random() * 8), Math.floor(Math.random() * 8)); if (n !== start && !tl.includes(n)) tl.push(n); }
+    }
+    const path = drillPath(type, start, tl);
+    if (!path) continue;
+    if (type !== 'pawn' && (path.length < nT || path.length > nT + 3)) continue;
+    return { kind: 'drill', skill: 'moves', type, pos: start, start, startTargets: tl.slice(), targets: new Set(tl), par: path.length, moves: 0, hints: 0, wrong: 0 };
+  }
+  return null;
+}
+function drillReset() {
+  ex.pos = ex.start; ex.targets = new Set(ex.startTargets); ex.moves = 0; ex.done = false; picked = null; hintSq = [];
+  renderList([{ type: ex.type, dark: false, sq: ex.pos }]); setTargets(ex.startTargets); learnUI(); drawMarkers();
+}
+async function drillClick(name) {
+  if (ex.done) return;
+  if (name === ex.pos) { picked = picked ? null : name; lift(ex.pos, !!picked); drawMarkers(); return; }
+  const legal = drillMoves(ex.type, sqCoords(ex.pos), ex.targets);
+  if (!legal.includes(name)) {
+    if (!picked) { picked = ex.pos; lift(ex.pos, true); drawMarkers(); return; }
+    learnUI(`The ${ex.type} cannot reach that square in one move.`); return;
+  }
+  busy = true; hintSq = [];
+  const p = squareMap[ex.pos]; lift(ex.pos, false); picked = null; markers.clear();
+  const [f, r] = sqCoords(name); const v = sq(f, r);
+  const jobs = [animate(p, new THREE.Vector3(v.x, 0, v.z), 480, ex.type === 'knight' ? 0.4 : 0.15)];
+  if (ex.targets.has(name)) { const b = targetMap[name]; jobs.push(wait(260).then(() => animate(b, b.position.clone().setY(0.6), 380, 0, 0.001))); ex.targets.delete(name); }
+  await Promise.all(jobs);
+  delete squareMap[ex.pos]; ex.pos = name; squareMap[name] = p; ex.moves++;
+  busy = false;
+  if (!ex.targets.size) {
+    const s = ex.hints ? 0.4 : ex.moves <= ex.par ? 1 : ex.moves <= ex.par + 2 ? 0.6 : 0.4;
+    finish(s, ex.moves <= ex.par ? `Every bead captured in ${ex.moves} moves, the shortest possible route.` : `Every bead captured in ${ex.moves} moves. The shortest route takes ${ex.par}.`);
+    return;
+  }
+  const rest = drillPath(ex.type, ex.pos, [...ex.targets]);
+  if (!rest) learnUI('The pawn can no longer capture the remaining beads, because pawns never move backwards. Try again from the start.');
+  else learnUI();
+  drawMarkers();
+}
+
+function pickPuzzle(skill, tier) {
+  const list = PUZ[skill].map((p, k) => ({ ...p, k })).filter((p) => p.tier === tier);
+  const seen = prog[skill].seen;
+  const fresh = list.filter((p) => !seen.includes(p.k));
+  const pool = fresh.length ? fresh : list;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function startExercise(skillId) {
+  const sk = skillById(skillId); const st = prog[skillId];
+  picked = null; hintSq = []; lastMove = null;
+  if (skillId === 'moves') {
+    ex = newDrill(st.level);
+    renderList([{ type: ex.type, dark: false, sq: ex.pos }]); setTargets(ex.startTargets);
+  } else {
+    const tier = Math.min(st.level, sk.max);
+    const pz = pickPuzzle(skillId, tier);
+    st.seen = [...st.seen.filter((k) => k !== pz.k), pz.k].slice(-10);
+    learnGame.load(pz.fen); game = learnGame;
+    ex = { kind: 'puzzle', skill: skillId, sol: pz.sol, stage: 1, hints: 0, wrong: 0 };
+    setTargets([]); rebuild();
+  }
+  ex.first = st.n === 0;
+  learnUI(); drawMarkers(); renderPath();
+}
+function learnUI(fb, good) {
+  const sk = skillById(ex.skill), st = prog[ex.skill];
+  iSrc.textContent = `Learn · ${sk.name} · Level ${Math.min(st.level, sk.max)}`;
+  if (ex.kind === 'drill') {
+    const L = PIECE_LESSON[ex.type];
+    iName.textContent = L.title;
+    iText.textContent = (ex.first ? sk.intro + ' ' : '') + L.how + ' Capture the beads.';
+    iMoves.hidden = false;
+    iMoves.textContent = `Moves ${ex.moves} · Beads to capture ${ex.targets.size} · Shortest route ${ex.par}`;
+  } else {
+    iName.textContent = ex.stage === 2 ? 'Now finish it' : sk.name;
+    iText.textContent = ex.stage === 2 ? 'Black has replied. Deliver checkmate.' : (ex.first ? sk.intro + ' ' : '') + sk.task;
+    iMoves.hidden = true;
+  }
+  iNote.hidden = true;
+  iFb.hidden = !fb; iFb.textContent = fb || ''; iFb.className = 'fb' + (good === true ? ' good' : good === false ? ' bad' : '');
+  showButtons(ex.done ? [lNext] : ex.kind === 'drill' ? [gHint, lReset, lNext] : [gHint, lNext]);
+  lNext.textContent = ex.done ? 'Next' : 'Skip';
+  gHint.disabled = false;
+}
+function finish(score, msg) {
+  ex.done = true; busy = false;
+  const st = prog[ex.skill], sk = skillById(ex.skill);
+  st.m = +(st.m * 0.65 + score * 0.35).toFixed(3); st.n++;
+  let note = '';
+  if (score === 1) { st.streak++; if (st.streak >= 2 && st.level < sk.max) { st.level++; st.streak = 0; note = ` Level ${st.level} unlocked.`; } }
+  else { st.streak = 0; if (score < 0.5 && st.level > 1) { st.level--; note = ' We will step back a level and build up again.'; } }
+  const idx = SKILLS.indexOf(sk);
+  if (idx === prog.unlocked - 1 && idx < SKILLS.length - 1 && st.m >= 0.6 && st.n >= 3) { prog.unlocked++; note += ` New skill opened: ${SKILLS[idx + 1].name}.`; }
+  saveProg();
+  const praise = score === 1 ? 'Excellent.' : score >= 0.6 ? 'Well done.' : 'Solved.';
+  learnUI(`${praise} ${msg}${note}`, true);
+  renderPath(); drawMarkers();
+}
+function nonMateReason() {
+  if (!game.in_check()) return 'That is not check. A checkmate always starts with a check.';
+  const rs = game.moves({ verbose: true });
+  const k = rs.find((r) => r.piece === 'k'), c = rs.find((r) => r.captured), b = rs[0];
+  if (k) return `Check, but the king escapes with ${k.san}.`;
+  if (c) return `Check, but Black captures with ${c.san}.`;
+  return `Check, but Black blocks with ${b.san}.`;
+}
+function mateIn1Move() {
+  for (const m of game.moves({ verbose: true })) { game.move(m); const r = game.in_checkmate(); game.undo(); if (r) return m; }
+  return null;
+}
+async function rejectMove(why) {
+  ex.wrong++; busy = true;
+  learnUI(why, false);
+  await wait(1500);
+  if (mode !== 'learn' || !ex || game !== learnGame) { busy = false; return; }
+  game.undo(); lastMove = null; rebuild(); busy = false; learnUI(why + ' Try again.', false); drawMarkers();
+}
+async function learnAfterMove(mv) {
+  if (!ex || ex.kind !== 'puzzle') return;
+  if (mv.color === 'b') { learnUI('Black replied with ' + mv.san + '.'); drawMarkers(); return; }
+  const u = mv.from + mv.to + (mv.promotion || '');
+  const sc = () => (ex.hints ? 0.4 : ex.wrong === 0 ? 1 : ex.wrong === 1 ? 0.6 : 0.4);
+  if (ex.skill === 'mate1' || (ex.skill === 'mate2' && ex.stage === 2)) {
+    if (game.in_checkmate()) { finish(sc(), `${mv.san} is checkmate.`); return; }
+    if (ex.skill === 'mate2' && ex.stage === 2) {
+      const why = nonMateReason(); ex.wrong++; busy = true; learnUI(why, false);
+      await wait(1500); if (game !== learnGame) { busy = false; return; }
+      game.undo(); lastMove = null; rebuild(); busy = false; learnUI(why + ' Look again for the mate.', false); drawMarkers(); return;
+    }
+    rejectMove(nonMateReason()); return;
+  }
+  if (ex.skill === 'mate2') {
+    if (game.in_checkmate()) { finish(sc(), `${mv.san} is checkmate straight away.`); return; }
+    if (game.in_stalemate()) { rejectMove('That is stalemate: Black has no legal move but is not in check, so the game is a draw.'); return; }
+    let refute = null;
+    for (const r of game.moves({ verbose: true })) { game.move(r); const m = mateIn1Move(); game.undo(); if (!m) { refute = r; break; } }
+    if (refute) { rejectMove(`Black can answer with ${refute.san}, and then there is no checkmate.`); return; }
+    // black picks a defence, then the learner finishes
+    ex.stage = 2; busy = true; learnUI(`${mv.san}. Good, Black has no defence. Watch the reply.`, true);
+    await wait(700);
+    if (game !== learnGame) { busy = false; return; }
+    const rs = game.moves({ verbose: true }); const r = rs[Math.floor(Math.random() * rs.length)];
+    busy = false; await doMove(r); learnUI(`Black played ${r.san}. Now deliver checkmate.`); return;
+  }
+  if (ex.skill === 'capture') {
+    if (ex.sol.includes(u)) { finish(sc(), `${mv.san} wins material safely.`); return; }
+    let why = 'That move does not win anything. Look for a piece Black has left unprotected.';
+    if (mv.captured) why = `Black can take back on ${mv.to}, so you would lose your ${TYPE[mv.piece]} for less.`;
+    rejectMove(why); return;
+  }
+  if (ex.skill === 'check') {
+    if (ex.sol.includes(u)) { finish(sc(), `${mv.san} is a safe check.`); return; }
+    const why = game.in_check() ? `That is check, but Black can capture your ${TYPE[mv.piece]} on ${mv.to}.` : 'That move does not attack the king.';
+    rejectMove(why);
+  }
+}
+function learnHint() {
+  if (!ex || ex.done) return;
+  ex.hints++;
+  let from, to, text;
+  if (ex.kind === 'drill') {
+    const path = drillPath(ex.type, ex.pos, [...ex.targets]);
+    if (!path) { learnUI('This route cannot be finished. Start again.', false); return; }
+    from = ex.pos; to = path[0];
+  } else {
+    let mv = null;
+    if (ex.skill === 'mate2' && ex.stage === 2) mv = mateIn1Move();
+    else { const u = ex.sol[0]; mv = game.moves({ verbose: true }).find((m) => m.from === u.slice(0, 2) && m.to === u.slice(2, 4)); }
+    if (!mv) return;
+    from = mv.from; to = mv.to;
+  }
+  if (ex.hints === 1) { hintSq = [from]; text = `Hint: look at the piece on ${from}.`; }
+  else { hintSq = [from, to]; text = `Hint: move from ${from} to ${to}.`; }
+  learnUI(text); drawMarkers();
+}
+lNext.addEventListener('click', () => { if (busy || mode !== 'learn') return; startExercise(chooseSkill()); });
+lReset.addEventListener('click', () => { if (busy || !ex || ex.kind !== 'drill') return; drillReset(); });
+
+function renderPath() {
+  pathEl.innerHTML = '';
+  const mk = (id, label, m, locked, title) => {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.skill = id;
+    b.setAttribute('aria-pressed', String(prog.focus === id)); b.disabled = locked; if (title) b.title = title;
+    b.innerHTML = `<span>${label}</span>` + (m === null ? '' : `<i class="m"><b style="width:${Math.round(m * 100)}%"></b></i>`);
+    b.addEventListener('click', () => { if (busy) return; prog.focus = id; saveProg(); startExercise(chooseSkill()); });
+    pathEl.appendChild(b);
+  };
+  mk('guided', 'Guided', null, false, 'Picks the next exercise for you');
+  SKILLS.forEach((s, k) => mk(s.id, s.short, prog[s.id].m, k >= prog.unlocked, k >= prog.unlocked ? `Opens after ${SKILLS[k - 1].name}` : ''));
+}
+
+// ---------- modes ----------
+const mExplore = document.getElementById('m-explore'), mLearn = document.getElementById('m-learn'), mPlay = document.getElementById('m-play');
 const piecesBar = document.querySelector('.pieces');
 function setMode(m) {
+  if (busy || !proto) return;
   mode = m;
-  mExplore.setAttribute('aria-pressed', String(m === 'explore')); mPlay.setAttribute('aria-pressed', String(m === 'play'));
-  if (picked) { lift(picked, false); picked = null; }
-  iMoves.hidden = iActions.hidden = m !== 'play';
-  piecesBar.hidden = m === 'play';
+  mExplore.setAttribute('aria-pressed', String(m === 'explore')); mLearn.setAttribute('aria-pressed', String(m === 'learn')); mPlay.setAttribute('aria-pressed', String(m === 'play'));
+  picked = null; hintSq = []; setTargets([]);
+  piecesBar.hidden = m !== 'explore'; pathEl.hidden = m !== 'learn';
+  document.body.classList.toggle('immersive', m === 'play');
+  document.getElementById('info').hidden = m === 'play';
+  hud.hidden = dock.hidden = m !== 'play'; openSheet(false);
+  iOpts.hidden = m !== 'play'; iActions.hidden = m === 'explore'; iFb.hidden = true; iMoves.hidden = m !== 'play';
+  controls.autoRotate = false; spinBtn.setAttribute('aria-pressed', 'false');
+  viewBtns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  const narrow = camera.aspect < 1;
   if (m === 'play') {
-    select(null, false); status();
-    controls.autoRotate = false; spinBtn.setAttribute('aria-pressed', 'false');
+    game = playGame; select(null, false);
+    const h = game.history({ verbose: true }); lastMove = h.length ? { from: h[h.length - 1].from, to: h[h.length - 1].to } : null;
+    rebuild(); showButtons([gHint, gUndo, gNew]); status();
     // look across from the side so both armies sit left and right; nudge the board clear of the game card
-    const narrow = camera.aspect < 1;
-    flyTo(new THREE.Vector3(narrow ? 7.6 : 5.6, narrow ? 9.2 : 6.0, narrow ? 0.01 : -0.7), new THREE.Vector3(narrow ? 0.6 : 0.5, 0, narrow ? 0 : -0.7));
-    viewBtns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
-  } else { select(null, false); }
+    flyTo(new THREE.Vector3(narrow ? 7.6 : 6.3, narrow ? 9.2 : 6.6, 0.01), new THREE.Vector3(narrow ? 0.6 : 0.35, 0, 0));
+    if (opponent === 'cpu' && game.turn() === 'b' && !game.game_over()) computerMove();
+  } else if (m === 'learn') {
+    select(null, false); renderPath();
+    const v = fitFor('learn'); flyTo(v.pos, v.target);
+    startExercise(chooseSkill());
+  } else {
+    game = exploreGame; lastMove = null; rebuild(); select(null, false);
+    const v = fitFor('set'); flyTo(v.pos, v.target); document.getElementById('v-set').setAttribute('aria-pressed', 'true');
+  }
   drawMarkers();
 }
 mExplore.addEventListener('click', () => setMode('explore'));
+mLearn.addEventListener('click', () => setMode('learn'));
 mPlay.addEventListener('click', () => setMode('play'));
 
 // ---------- loop ----------
@@ -752,6 +1312,7 @@ controls.addEventListener('start', () => { tween = null; });
 
 renderer.setAnimationLoop((now) => {
   stepAnims(now);
+  targets.children.forEach((b, k) => { b.rotation.y = now * 0.0007 + k; b.position.y = 0.12 + Math.sin(now * 0.002 + k) * 0.012; });
   if (tween) {
     const t = Math.min(1, (now - tween.start) / tween.ms), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e);
