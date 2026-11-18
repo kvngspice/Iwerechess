@@ -1,4 +1,12 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="The bronze Olu of Warri chess set: explore the pieces, learn chess and play a friend or the computer.">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>Olu of Warri Chess Set</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,7 +121,7 @@
     .card { max-height: 38vh; }
   }
   /* liquid glass: clear body, heavy refraction-like blur, a specular rim that is bright on top and fades below, soft inner light */
-  .modes, .views, .pieces button, .path button, .hud .turn, .dock button, .sheet {
+  .modes, .views, .pieces button, .path button, .hud .turn, .dock button, .sheet, .ar-link {
     position: relative; isolation: isolate;
     background: linear-gradient(180deg, rgba(255, 246, 230, 0.10) 0%, rgba(255, 246, 230, 0.03) 45%, rgba(20, 15, 11, 0.10) 100%);
     border: 0;
@@ -126,13 +134,13 @@
       0 10px 30px -12px rgba(0, 0, 0, 0.65),
       0 1px 2px rgba(0, 0, 0, 0.25);
   }
-  .modes::before, .views::before, .pieces button::before, .path button::before, .hud .turn::before, .dock button::before, .sheet::before {
+  .modes::before, .views::before, .pieces button::before, .path button::before, .hud .turn::before, .dock button::before, .sheet::before, .ar-link::before {
     content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
     background: linear-gradient(160deg, rgba(255, 248, 235, 0.65), rgba(255, 230, 190, 0.12) 35%, rgba(255, 230, 190, 0.04) 60%, rgba(232, 190, 130, 0.35));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
   }
-  .modes::after, .views::after, .pieces button::after, .path button::after, .hud .turn::after, .dock button::after, .sheet::after {
+  .modes::after, .views::after, .pieces button::after, .path button::after, .hud .turn::after, .dock button::after, .sheet::after, .ar-link::after {
     content: ""; position: absolute; left: 8%; right: 8%; top: 1px; height: 45%; border-radius: 999px 999px 40% 40%; pointer-events: none; z-index: -1;
     background: linear-gradient(180deg, rgba(255, 252, 245, 0.16), rgba(255, 252, 245, 0));
   }
@@ -152,6 +160,9 @@
     background: linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(236, 226, 208, 0.78));
     box-shadow: inset 0 1px 0.5px #fff, inset 0 -2px 4px rgba(120, 100, 70, 0.25), 0 4px 14px -4px rgba(242, 234, 219, 0.35);
   }
+  .ar-link { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; margin-top: 10px; font: 500 11.5px/1 var(--text); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory); text-decoration: none; padding: 11px 16px 11px 14px; border-radius: 999px; }
+  .ar-link svg { width: 16px; height: 16px; }
+  .ar-link:hover { color: #fff; }
   /* immersive play: no title, no card, just a quiet turn indicator, a dock and a menu sheet */
   body.immersive .brand, body.immersive .views { display: none; }
   body.immersive .top { justify-content: flex-end; }
@@ -188,7 +199,7 @@
 
 <div id="loader" role="status" aria-live="polite">
   <div class="load-inner">
-    <div class="eyebrow">Umbrellab Ltd</div>
+    <div class="eyebrow"></div>
     <div class="t">Casting the set</div>
     <div class="bar"><i id="loadbar"></i></div>
     <div id="loadmsg">Loading models</div>
@@ -200,6 +211,7 @@
     <div class="brand">
       <h1>The Olu of Warri Chess Set</h1>
       <span class="hint">Drag to turn, scroll or pinch to zoom, tap a piece to read about it.</span>
+      <a class="ar-link" href="ar.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3zM4 7.5 12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>View on your table</a>
     </div>
     <div class="controls">
     <div class="modes" role="group" aria-label="Mode">
@@ -1324,4 +1336,5 @@ renderer.setAnimationLoop((now) => {
 });
 </script>
 
-</body></html>
+</body>
+</html>

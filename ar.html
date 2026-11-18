@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Olu of Warri Chess Set in AR</title>
+<meta name="description" content="Place the bronze Olu of Warri chess set on your own table in augmented reality.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Rubik:wght@300;400;500&display=swap">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  /* Layout: the set fills the screen; a glass AR button floats at the bottom, a quiet title at the top */
+  :root {
+    color-scheme: dark;
+    --stage: #0E0B09;
+    --ivory: #F2EADB;
+    --soft: #CDBFA8;
+    --muted: #94856F;
+    --bronze: #C9974F;
+    --line: rgba(201, 151, 79, 0.28);
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --text: 'Rubik', Arial, sans-serif;
+  }
+  html, body { height: 100%; margin: 0; }
+  body { background: radial-gradient(ellipse at 50% 40%, #241B14 0%, var(--stage) 70%); color: var(--soft); font-family: var(--text); font-weight: 300; overflow: hidden; }
+  model-viewer { position: fixed; inset: 0; width: 100%; height: 100%; --poster-color: transparent; --progress-bar-color: var(--bronze); background: transparent; }
+
+  .top { position: fixed; z-index: 2; left: 0; right: 0; top: 0; pointer-events: none;
+    padding: calc(22px + env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) 0 max(18px, env(safe-area-inset-left, 0px));
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .top > * { pointer-events: auto; }
+  .brand { display: flex; flex-direction: column; gap: 6px; }
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bronze); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 40px); line-height: 1.05; color: var(--ivory); }
+  .back { font: 500 12px/1 var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ivory); text-decoration: none; padding: 11px 16px; border-radius: 999px; white-space: nowrap; }
+
+  .bottom { position: fixed; z-index: 2; left: 0; right: 0; bottom: 0; pointer-events: none;
+    padding: 0 max(18px, env(safe-area-inset-right, 0px)) calc(26px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+    display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+  .bottom > * { pointer-events: auto; }
+  .ar-btn { font: 500 14px/1 var(--text); letter-spacing: 0.06em; color: #1A140E; border: 0; border-radius: 999px; padding: 17px 26px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(180deg, rgba(240, 200, 140, 0.96), rgba(201, 151, 79, 0.86));
+    box-shadow: inset 0 1px 0.5px rgba(255, 245, 225, 0.9), 0 10px 30px -10px rgba(201, 151, 79, 0.7); }
+  .ar-btn svg { width: 20px; height: 20px; }
+  .ar-btn:active { transform: scale(0.97); }
+  .tip { font-size: 13px; line-height: 1.5; color: var(--soft); max-width: 360px; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
+
+  /* glass, as in the main app */
+  .glass { position: relative; isolation: isolate;
+    background: linear-gradient(180deg, rgba(255, 246, 230, 0.10), rgba(255, 246, 230, 0.03) 45%, rgba(20, 15, 11, 0.10));
+    backdrop-filter: blur(18px) saturate(185%) brightness(1.12); -webkit-backdrop-filter: blur(18px) saturate(185%) brightness(1.12);
+    box-shadow: inset 0 1px 0.5px rgba(255, 250, 240, 0.45), inset 0 -1px 1px rgba(255, 235, 200, 0.10), 0 10px 30px -12px rgba(0, 0, 0, 0.65); }
+
+  /* shown on computers: scan to open on a phone */
+  .qr { display: none; flex-direction: column; align-items: center; gap: 10px; padding: 18px 20px; border-radius: 20px; }
+  .qr.show { display: flex; }
+  .qr .code { background: #F2EADB; padding: 10px; border-radius: 12px; line-height: 0; }
+  .qr .code img { width: 132px; height: 132px; image-rendering: pixelated; }
+  .qr p { margin: 0; font-size: 13px; color: var(--soft); max-width: 220px; }
+  .qr b { color: var(--ivory); font-weight: 500; }
+
+  @media (min-width: 720px) {
+    .qr { position: fixed; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(26px + env(safe-area-inset-bottom, 0px)); flex-direction: row; text-align: left; padding: 14px 16px; }
+    .qr .code img { width: 104px; height: 104px; }
+    .qr p { max-width: 170px; }
+  }
+  .err { display: none; font-size: 13px; color: #F4CDBF; }
+  @media (prefers-reduced-motion: reduce) { .ar-btn:active { transform: none; } }
+</style>
+</head>
+<body>
+<model-viewer id="mv"
+  src="set.glb" ios-src="set.usdz"
+  alt="The bronze Olu of Warri chess set on its resin river-map board"
+  ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor"
+  camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="12deg"
+  camera-orbit="35deg 62deg 105%" field-of-view="30deg" min-camera-orbit="auto 10deg auto" max-camera-orbit="auto 88deg auto"
+  shadow-intensity="1.1" shadow-softness="0.8" exposure="1.05" environment-image="neutral" interaction-prompt="none">
+  <button slot="ar-button" class="ar-btn" id="ar-btn" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3zM4 7.5 12 12l8-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    View on your table
+  </button>
+</model-viewer>
+
+<div class="top">
+  <div class="brand">
+    <span class="eyebrow">Àlè Ìwẹ̀rẹ̀ · In your space</span>
+    <h1>The Olu of Warri Chess Set</h1>
+  </div>
+  <a class="back glass" href="index.html">Play the set</a>
+</div>
+
+<div class="bottom">
+  <div class="qr glass" id="qr">
+    <div class="code" id="qr-code"></div>
+    <p><b>Scan with your phone</b> to place the set on a real table. AR needs a phone or tablet.</p>
+  </div>
+  <p class="tip" id="tip">Drag to turn the set. On your phone, tap <b>View on your table</b>, point the camera at a table or the floor, then pinch to resize and drag to move it.</p>
+  <p class="err" id="err">The set could not load. Check your connection and refresh the page.</p>
+</div>
+
+<script>
+  const mv = document.getElementById('mv');
+  const qr = document.getElementById('qr');
+  const tip = document.getElementById('tip');
+  function showQR() {
+    try {
+      const q = qrcode(0, 'M'); q.addData(location.href); q.make();
+      document.getElementById('qr-code').innerHTML = q.createImgTag(5, 0, 'QR code that opens this page');
+      qr.classList.add('show');
+      tip.textContent = 'Drag to turn the set and scroll to zoom.';
+    } catch (e) { /* no QR library: the tip still explains */ }
+  }
+  mv.addEventListener('load', () => { if (!mv.canActivateAR) showQR(); });
+  mv.addEventListener('error', () => { document.getElementById('err').style.display = 'block'; });
+  mv.addEventListener('ar-status', (e) => {
+    if (e.detail.status === 'failed') tip.textContent = 'AR could not start on this device. You can still turn and zoom the set here.';
+  });
+</script>
+</body>
+</html>
